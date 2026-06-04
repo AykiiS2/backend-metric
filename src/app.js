@@ -53,7 +53,7 @@ app.get('/health', async (req, res) => {
         console.log('Supabase client created');
         
         const { data, error } = await supabase
-            .from('Escolas')
+            .from('escolas')
             .select('id_escola')
             .limit(1);
         
