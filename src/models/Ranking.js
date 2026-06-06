@@ -43,24 +43,6 @@ class RankingModel {
     }
   }
 
-  static async registrarHistorico({ alunoId, codIdentificacao, pontuacao, acertos, erros, tempoSegundos }) {
-    const { data, error } = await supabaseAdmin
-      .from('historico_correcoes')
-      .insert({
-        id_aluno: alunoId,
-        cod_identificacao: codIdentificacao,
-        pontuacao,
-        acertos,
-        erros,
-        tempo_segundos: tempoSegundos,
-        created_at: new Date()
-      })
-      .select();
-
-    if (error) throw error;
-    return data;
-  }
-
   static async obterRanking({ escolaId, turmaId }) {
     let query = supabaseAdmin
       .from('ranking_alunos')
