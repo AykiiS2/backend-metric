@@ -1,7 +1,7 @@
 const { getSupabaseAdmin } = require('../config/supabase');
 
 class RankingModel {
-  static async atualizarRanking({ alunoId, escolaId, turmaId, nome, codIdentificacao, pontuacao }) {
+  static async atualizarRanking({ alunoId, escolaId, turmaId, nome, codIdentificacao, pontuacao, tempo }) {
     const supabaseAdmin = getSupabaseAdmin();
     
     const { data: existe, error: findError } = await supabaseAdmin
@@ -19,7 +19,7 @@ class RankingModel {
           pontuacao,
           nome,
           cod_identificacao: codIdentificacao,
-          ultima_atualizacao: new Date()
+          tempo: tempo
         })
         .eq('id_aluno', alunoId)
         .select();
@@ -36,7 +36,7 @@ class RankingModel {
           nome,
           cod_identificacao: codIdentificacao,
           pontuacao,
-          ultima_atualizacao: new Date()
+          tempo: tempo
         })
         .select();
 
