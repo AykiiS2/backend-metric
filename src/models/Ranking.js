@@ -23,6 +23,7 @@ class RankingModel {
         pontuacao: novaPontuacao,
         nome,
         cod_identificacao: codIdentificacao,
+        updated_at: new Date()
       };
       
       if (melhorTempo) {
@@ -47,7 +48,9 @@ class RankingModel {
           nome,
           cod_identificacao: codIdentificacao,
           pontuacao: pontuacao,
-          tempo: tempo
+          tempo: tempo,
+          created_at: new Date(),
+          updated_at: new Date()
         })
         .select();
 
