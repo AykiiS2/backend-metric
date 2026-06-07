@@ -1,7 +1,9 @@
-const { supabaseAdmin } = require('../config/supabase');
+const { getSupabaseAdmin } = require('../config/supabase');
 
 class RankingModel {
   static async atualizarRanking({ alunoId, escolaId, turmaId, nome, codIdentificacao, pontuacao }) {
+    const supabaseAdmin = getSupabaseAdmin();
+    
     const { data: existe, error: findError } = await supabaseAdmin
       .from('ranking_alunos')
       .select('id_ranking')
@@ -43,7 +45,29 @@ class RankingModel {
     }
   }
 
+  static async registrarHistorico({ alunoId, codIdentificacao, pontuacao, acertos, erros, tempoSegundos }) {
+    const supabaseAdmin = getSupabaseAdmin();
+    
+    const { data, error } = await supabaseAdmin
+      .from('historico_correcoes')
+      .insert({
+        id_aluno: alunoId,
+        cod_identificacao: codIdentificacao,
+        pontuacao,
+        acertos,
+        erros,
+        tempo_segundos: tempoSegundos,
+        created_at: new Date()
+      })
+      .select();
+
+    if (error) throw error;
+    return data;
+  }
+
   static async obterRanking({ escolaId, turmaId }) {
+    const supabaseAdmin = getSupabaseAdmin();
+    
     let query = supabaseAdmin
       .from('ranking_alunos')
       .select('*')
@@ -58,6 +82,8 @@ class RankingModel {
   }
 
   static async obterPosicaoAluno(alunoId) {
+    const supabaseAdmin = getSupabaseAdmin();
+    
     const { data: allRanking, error } = await supabaseAdmin
       .from('ranking_alunos')
       .select('id_aluno, pontuacao')
