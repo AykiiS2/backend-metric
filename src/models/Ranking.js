@@ -6,21 +6,32 @@ class RankingModel {
     
     const { data: existe, error: findError } = await supabaseAdmin
       .from('ranking_alunos')
-      .select('id_ranking')
+      .select('id_ranking, pontuacao, tempo')
       .eq('id_aluno', alunoId)
       .maybeSingle();
 
     if (findError) throw findError;
 
+    const tempoAtualEmSegundos = _tempoParaSegundos(tempo);
+    const tempoExistenteEmSegundos = existe ? _tempoParaSegundos(existe.tempo) : null;
+    const melhorTempo = !existe || (tempoAtualEmSegundos < tempoExistenteEmSegundos);
+
     if (existe) {
+      const novaPontuacao = (existe.pontuacao || 0) + pontuacao;
+      
+      const dadosAtualizacao = {
+        pontuacao: novaPontuacao,
+        nome,
+        cod_identificacao: codIdentificacao,
+      };
+      
+      if (melhorTempo) {
+        dadosAtualizacao.tempo = tempo;
+      }
+      
       const { data, error } = await supabaseAdmin
         .from('ranking_alunos')
-        .update({
-          pontuacao,
-          nome,
-          cod_identificacao: codIdentificacao,
-          tempo: tempo
-        })
+        .update(dadosAtualizacao)
         .eq('id_aluno', alunoId)
         .select();
 
@@ -35,7 +46,7 @@ class RankingModel {
           id_turma: turmaId,
           nome,
           cod_identificacao: codIdentificacao,
-          pontuacao,
+          pontuacao: pontuacao,
           tempo: tempo
         })
         .select();
@@ -99,6 +110,15 @@ class RankingModel {
       pontuacao: aluno?.pontuacao || 0
     };
   }
+}
+
+function _tempoParaSegundos(tempo) {
+  if (!tempo) return 999999;
+  const partes = tempo.split(':');
+  if (partes.length !== 2) return 999999;
+  const minutos = parseInt(partes[0]) || 0;
+  const segundos = parseInt(partes[1]) || 0;
+  return (minutos * 60) + segundos;
 }
 
 module.exports = RankingModel;
