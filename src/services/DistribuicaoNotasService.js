@@ -1,15 +1,23 @@
 const DistribuicaoNotasModel = require('../models/DistribuicaoNotas');
 
 class DistribuicaoNotasService {
-  async registrar(notaConceitual, escolaId) {
+  async registrar(dados) {
+    const { notaConceitual, escolaId, turmaId, alunoId } = dados;
+    
     if (!notaConceitual || !escolaId) {
       throw new Error('Dados incompletos para registrar distribuição');
     }
-    return await DistribuicaoNotasModel.registrar(notaConceitual, escolaId);
+    
+    return await DistribuicaoNotasModel.registrar({
+      notaConceitual,
+      escolaId,
+      turmaId,
+      alunoId
+    });
   }
 
-  async obterDistribuicao(escolaId) {
-    return await DistribuicaoNotasModel.obterDistribuicao(escolaId);
+  async obterDistribuicao(filtros) {
+    return await DistribuicaoNotasModel.obterDistribuicao(filtros);
   }
 
   async limparTodas() {
