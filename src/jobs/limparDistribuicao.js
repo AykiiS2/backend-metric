@@ -1,18 +1,20 @@
 const cron = require('node-cron');
-const distribuicaoNotasService = require('../services/DistribuicaoNotasService');
+const DistribuicaoNotasService = require('../services/DistribuicaoNotasService');
 
 function iniciarJobLimpezaDistribuicao() {
   cron.schedule('59 23 * * 0', async () => {
-    console.log('Iniciando limpeza da tabela distribuicao_notas...');
+    console.log('[JOB] Iniciando limpeza semanal da distribuição de notas');
     try {
-      await distribuicaoNotasService.limparTodas();
-      console.log('Limpeza concluída com sucesso!');
+      await DistribuicaoNotasService.limparTodas();
+      console.log('[JOB] Limpeza concluída com sucesso');
     } catch (error) {
-      console.error('Erro na limpeza:', error);
+      console.error('[JOB] Erro ao limpar distribuição:', error);
     }
+  }, {
+    timezone: 'America/Sao_Paulo'
   });
   
-  console.log('Job de limpeza da distribuição de notas agendado para domingo 23:59');
+  console.log('[JOB] Agendamento de limpeza configurado para domingo às 23:59');
 }
 
 module.exports = { iniciarJobLimpezaDistribuicao };
