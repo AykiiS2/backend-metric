@@ -1,7 +1,7 @@
 const { getSupabaseAdmin } = require('../config/supabase');
 
 class DistribuicaoNotasModel {
-  static async registrar(notaConceitual, escolaId) {
+  static async registrar({ notaConceitual, escolaId, turmaId, alunoId }) {
     const supabaseAdmin = getSupabaseAdmin();
     
     const { data, error } = await supabaseAdmin
@@ -9,6 +9,8 @@ class DistribuicaoNotasModel {
       .insert({
         nota_conceitual: notaConceitual,
         escola_id: escolaId,
+        turma_id: turmaId,
+        aluno_id: alunoId,
         created_at: new Date()
       })
       .select();
@@ -17,7 +19,7 @@ class DistribuicaoNotasModel {
     return data;
   }
 
-  static async obterDistribuicao(escolaId) {
+  static async obterDistribuicao({ escolaId, turmaId }) {
     const supabaseAdmin = getSupabaseAdmin();
     
     let query = supabaseAdmin
@@ -26,6 +28,10 @@ class DistribuicaoNotasModel {
     
     if (escolaId && escolaId !== 'todas') {
       query = query.eq('escola_id', escolaId);
+    }
+    
+    if (turmaId && turmaId !== 'todas') {
+      query = query.eq('turma_id', turmaId);
     }
     
     const { data, error } = await query;
@@ -39,8 +45,10 @@ class DistribuicaoNotasModel {
       'I': 0
     };
     
-    for (const item of data) {
-      distribuicao[item.nota_conceitual] = (distribuicao[item.nota_conceitual] || 0) + 1;
+    if (data) {
+      for (const item of data) {
+        distribuicao[item.nota_conceitual] = (distribuicao[item.nota_conceitual] || 0) + 1;
+      }
     }
     
     return distribuicao;
