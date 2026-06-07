@@ -40,47 +40,10 @@ class RankingController {
     }
   }
 
-  async registrarHistorico(req, res, next) {
-    try {
-      const { alunoId, codIdentificacao, pontuacao, acertos, erros, tempoSegundos } = req.body;
-
-      if (!alunoId) {
-        return res.status(400).json({ error: 'alunoId é obrigatório' });
-      }
-      if (!codIdentificacao) {
-        return res.status(400).json({ error: 'codIdentificacao é obrigatório' });
-      }
-      if (acertos === undefined || acertos < 0) {
-        return res.status(400).json({ error: 'acertos inválido' });
-      }
-      if (erros === undefined || erros < 0) {
-        return res.status(400).json({ error: 'erros inválido' });
-      }
-      if (!tempoSegundos || tempoSegundos <= 0) {
-        return res.status(400).json({ error: 'tempoSegundos inválido' });
-      }
-
-      const resultado = await rankingService.registrarHistorico({
-        alunoId,
-        codIdentificacao,
-        pontuacao,
-        acertos,
-        erros,
-        tempoSegundos
-      });
-
-      res.json({ success: true, data: resultado });
-    } catch (error) {
-      next(error);
-    }
-  }
-
   async obterRanking(req, res, next) {
     try {
       const { escolaId, turmaId } = req.query;
-
       const ranking = await rankingService.obterRanking({ escolaId, turmaId });
-
       res.json({ success: true, ranking });
     } catch (error) {
       next(error);
@@ -90,13 +53,10 @@ class RankingController {
   async obterPosicaoAluno(req, res, next) {
     try {
       const { alunoId } = req.params;
-
       if (!alunoId) {
         return res.status(400).json({ error: 'alunoId é obrigatório' });
       }
-
       const posicao = await rankingService.obterPosicaoAluno(alunoId);
-
       res.json({ success: true, posicao });
     } catch (error) {
       next(error);
