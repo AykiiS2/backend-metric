@@ -1,65 +1,62 @@
 const { getSupabaseAdmin } = require('../config/supabase');
 
 class RankingTurmasModel {
-  static async atualizarDesempenho(turmaId, nomeTurma, periodo, notaConceitual) {
+  static async atualizarRanking({ turmaId, nomeTurma, escolaId, mediaPercentual, quantidadeAlunos }) {
     const supabaseAdmin = getSupabaseAdmin();
-    
-    let peso = 0;
-    switch (notaConceitual) {
-      case 'MB': peso = 4; break;
-      case 'B': peso = 3; break;
-      case 'R': peso = 2; break;
-      case 'I': peso = 1; break;
-      default: peso = 0;
-    }
     
     const { data: existe, error: findError } = await supabaseAdmin
       .from('ranking_turmas')
-      .select('id, desempenho')
-      .eq('id_turma', turmaId)
+      .select('id')
+      .eq('turma_id', turmaId)
       .maybeSingle();
-    
+
     if (findError) throw findError;
-    
+
     if (existe) {
-      const novoDesempenho = existe.desempenho + peso;
-      
       const { data, error } = await supabaseAdmin
         .from('ranking_turmas')
         .update({
-          desempenho: novoDesempenho,
           nome_turma: nomeTurma,
-          periodo: periodo
+          escola_id: escolaId,
+          media_percentual: mediaPercentual,
+          quantidade_alunos: quantidadeAlunos,
+          updated_at: new Date()
         })
-        .eq('id_turma', turmaId)
+        .eq('turma_id', turmaId)
         .select();
-      
+
       if (error) throw error;
       return data;
     } else {
       const { data, error } = await supabaseAdmin
         .from('ranking_turmas')
         .insert({
-          id_turma: turmaId,
+          turma_id: turmaId,
           nome_turma: nomeTurma,
-          periodo: periodo,
-          desempenho: peso
+          escola_id: escolaId,
+          media_percentual: mediaPercentual,
+          quantidade_alunos: quantidadeAlunos,
+          created_at: new Date(),
+          updated_at: new Date()
         })
         .select();
-      
+
       if (error) throw error;
       return data;
     }
   }
-  
-  static async obterRanking() {
+
+  static async obterRanking(escolaId) {
     const supabaseAdmin = getSupabaseAdmin();
     
-    const { data, error } = await supabaseAdmin
+    let query = supabaseAdmin
       .from('ranking_turmas')
       .select('*')
-      .order('desempenho', { ascending: false });
-    
+      .order('media_percentual', { ascending: false });
+
+    if (escolaId) query = query.eq('escola_id', escolaId);
+
+    const { data, error } = await query;
     if (error) throw error;
     return data;
   }
