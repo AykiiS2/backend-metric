@@ -3,13 +3,20 @@ const rankingTurmasService = require('../services/rankingTurmasService');
 class RankingTurmasController {
   async atualizar(req, res, next) {
     try {
-      const { turmaId, nomeTurma, periodo, notaConceitual } = req.body;
+      const { turmaId, nomeTurma, escolaId, mediaPercentual, quantidadeAlunos } = req.body;
       
-      if (!turmaId || !nomeTurma || !periodo) {
+      if (!turmaId || !nomeTurma || !escolaId) {
         return res.status(400).json({ error: 'Dados incompletos' });
       }
       
-      const resultado = await rankingTurmasService.atualizarDesempenho(turmaId, nomeTurma, periodo, notaConceitual);
+      const resultado = await rankingTurmasService.atualizarRanking({
+        turmaId,
+        nomeTurma,
+        escolaId,
+        mediaPercentual: mediaPercentual || 0,
+        quantidadeAlunos: quantidadeAlunos || 0
+      });
+      
       res.json({ success: true, data: resultado });
     } catch (error) {
       next(error);
@@ -18,7 +25,8 @@ class RankingTurmasController {
   
   async obterRanking(req, res, next) {
     try {
-      const ranking = await rankingTurmasService.obterRanking();
+      const { escolaId } = req.query;
+      const ranking = await rankingTurmasService.obterRanking(escolaId);
       res.json({ success: true, ranking });
     } catch (error) {
       next(error);
