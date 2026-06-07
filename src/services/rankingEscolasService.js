@@ -20,6 +20,21 @@ class RankingEscolasService {
   async obterRanking() {
     return await RankingEscolasModel.obterRanking();
   }
+
+  async obterMelhorEscola() {
+    const ranking = await RankingEscolasModel.obterRanking();
+    if (!ranking || ranking.length === 0) return null;
+    
+    const melhor = ranking[0];
+    return {
+      escolaId: melhor.escola_id,
+      nomeEscola: melhor.nome_escola,
+      mediaPercentual: melhor.media_percentual,
+      quantidadeTurmas: melhor.quantidade_turmas,
+      quantidadeAlunos: melhor.quantidade_alunos,
+      posicao: 1
+    };
+  }
 }
 
 module.exports = new RankingEscolasService();
