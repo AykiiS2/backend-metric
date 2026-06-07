@@ -6,6 +6,7 @@ const { limiter, authLimiter } = require('./middlewares/rateLimitMiddleware');
 const { errorMiddleware, notFoundMiddleware } = require('./middlewares/errorMiddleware');
 const { getSupabase } = require('./config/supabase');
 const routes = require('./routes');
+const { iniciarJobLimpezaDistribuicao } = require('./jobs/limparDistribuicao');
 
 const app = express();
 
@@ -89,3 +90,5 @@ app.use(notFoundMiddleware);
 app.use(errorMiddleware);
 
 module.exports = app;
+
+iniciarJobLimpezaDistribuicao();
