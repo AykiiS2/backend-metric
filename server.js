@@ -1,10 +1,13 @@
 require('dotenv').config();
 const app = require('./src/app');
 const { validateEnvironment } = require('./src/utils/envValidator');
+const { iniciarJobLimpezaDistribuicao } = require('./src/jobs/limparDistribuicao');
 
 const PORT = process.env.PORT || 3001;
 
 validateEnvironment();
+
+iniciarJobLimpezaDistribuicao();
 
 const server = app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
