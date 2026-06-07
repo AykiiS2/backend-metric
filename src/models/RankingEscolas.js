@@ -1,63 +1,59 @@
 const { getSupabaseAdmin } = require('../config/supabase');
 
 class RankingEscolasModel {
-  static async atualizarDesempenho(escolaId, nomeEscola, notaConceitual) {
+  static async atualizarRanking({ escolaId, nomeEscola, mediaPercentual, quantidadeTurmas, quantidadeAlunos }) {
     const supabaseAdmin = getSupabaseAdmin();
-    
-    let peso = 0;
-    switch (notaConceitual) {
-      case 'MB': peso = 4; break;
-      case 'B': peso = 3; break;
-      case 'R': peso = 2; break;
-      case 'I': peso = 1; break;
-      default: peso = 0;
-    }
     
     const { data: existe, error: findError } = await supabaseAdmin
       .from('ranking_escolas')
-      .select('id, desempenho')
-      .eq('id_escola', escolaId)
+      .select('id')
+      .eq('escola_id', escolaId)
       .maybeSingle();
-    
+
     if (findError) throw findError;
-    
+
     if (existe) {
-      const novoDesempenho = existe.desempenho + peso;
-      
       const { data, error } = await supabaseAdmin
         .from('ranking_escolas')
         .update({
-          desempenho: novoDesempenho,
-          nome_escola: nomeEscola
+          nome_escola: nomeEscola,
+          media_percentual: mediaPercentual,
+          quantidade_turmas: quantidadeTurmas,
+          quantidade_alunos: quantidadeAlunos,
+          updated_at: new Date()
         })
-        .eq('id_escola', escolaId)
+        .eq('escola_id', escolaId)
         .select();
-      
+
       if (error) throw error;
       return data;
     } else {
       const { data, error } = await supabaseAdmin
         .from('ranking_escolas')
         .insert({
-          id_escola: escolaId,
+          escola_id: escolaId,
           nome_escola: nomeEscola,
-          desempenho: peso
+          media_percentual: mediaPercentual,
+          quantidade_turmas: quantidadeTurmas,
+          quantidade_alunos: quantidadeAlunos,
+          created_at: new Date(),
+          updated_at: new Date()
         })
         .select();
-      
+
       if (error) throw error;
       return data;
     }
   }
-  
+
   static async obterRanking() {
     const supabaseAdmin = getSupabaseAdmin();
     
     const { data, error } = await supabaseAdmin
       .from('ranking_escolas')
       .select('*')
-      .order('desempenho', { ascending: false });
-    
+      .order('media_percentual', { ascending: false });
+
     if (error) throw error;
     return data;
   }
