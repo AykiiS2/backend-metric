@@ -31,6 +31,15 @@ class RankingEscolasController {
       next(error);
     }
   }
+
+  async obterMelhorEscola(req, res, next) {
+    try {
+      const melhorEscola = await rankingEscolasService.obterMelhorEscola();
+      res.json({ success: true, data: melhorEscola });
+    } catch (error) {
+      next(error);
+    }
+  }
 }
 
 module.exports = new RankingEscolasController();
