@@ -32,6 +32,16 @@ class RankingTurmasController {
       next(error);
     }
   }
+
+  async obterMelhorTurma(req, res, next) {
+    try {
+      const { escolaId } = req.query;
+      const melhorTurma = await rankingTurmasService.obterMelhorTurma(escolaId);
+      res.json({ success: true, data: melhorTurma });
+    } catch (error) {
+      next(error);
+    }
+  }
 }
 
 module.exports = new RankingTurmasController();
