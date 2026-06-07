@@ -1,13 +1,22 @@
 const RankingEscolasModel = require('../models/RankingEscolas');
 
 class RankingEscolasService {
-  async atualizarDesempenho(escolaId, nomeEscola, notaConceitual) {
+  async atualizarRanking(dados) {
+    const { escolaId, nomeEscola, mediaPercentual, quantidadeTurmas, quantidadeAlunos } = dados;
+    
     if (!escolaId || !nomeEscola) {
-      throw new Error('Dados incompletos');
+      throw new Error('Dados incompletos para atualizar ranking de escolas');
     }
-    return await RankingEscolasModel.atualizarDesempenho(escolaId, nomeEscola, notaConceitual);
+    
+    return await RankingEscolasModel.atualizarRanking({
+      escolaId,
+      nomeEscola,
+      mediaPercentual,
+      quantidadeTurmas,
+      quantidadeAlunos
+    });
   }
-  
+
   async obterRanking() {
     return await RankingEscolasModel.obterRanking();
   }
