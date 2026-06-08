@@ -7,7 +7,7 @@ class RankingEscolasModel {
     const { data: existe, error: findError } = await supabaseAdmin
       .from('ranking_escolas')
       .select('id')
-      .eq('escola_id', escolaId)
+      .eq('id_escola', escolaId)
       .maybeSingle();
 
     if (findError) throw findError;
@@ -17,12 +17,9 @@ class RankingEscolasModel {
         .from('ranking_escolas')
         .update({
           nome_escola: nomeEscola,
-          media_percentual: mediaPercentual,
-          quantidade_turmas: quantidadeTurmas,
-          quantidade_alunos: quantidadeAlunos,
-          updated_at: new Date()
+          desempenho: Math.round(mediaPercentual * 100)
         })
-        .eq('escola_id', escolaId)
+        .eq('id_escola', escolaId)
         .select();
 
       if (error) throw error;
@@ -31,13 +28,9 @@ class RankingEscolasModel {
       const { data, error } = await supabaseAdmin
         .from('ranking_escolas')
         .insert({
-          escola_id: escolaId,
+          id_escola: escolaId,
           nome_escola: nomeEscola,
-          media_percentual: mediaPercentual,
-          quantidade_turmas: quantidadeTurmas,
-          quantidade_alunos: quantidadeAlunos,
-          created_at: new Date(),
-          updated_at: new Date()
+          desempenho: Math.round(mediaPercentual * 100)
         })
         .select();
 
@@ -52,7 +45,7 @@ class RankingEscolasModel {
     const { data, error } = await supabaseAdmin
       .from('ranking_escolas')
       .select('*')
-      .order('media_percentual', { ascending: false });
+      .order('desempenho', { ascending: false });
 
     if (error) throw error;
     return data;
