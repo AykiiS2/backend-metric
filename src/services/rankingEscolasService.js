@@ -27,11 +27,9 @@ class RankingEscolasService {
     
     const melhor = ranking[0];
     return {
-      escolaId: melhor.escola_id,
+      escolaId: melhor.id_escola,
       nomeEscola: melhor.nome_escola,
-      mediaPercentual: melhor.media_percentual,
-      quantidadeTurmas: melhor.quantidade_turmas,
-      quantidadeAlunos: melhor.quantidade_alunos,
+      desempenho: melhor.desempenho,
       posicao: 1
     };
   }
