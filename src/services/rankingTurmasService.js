@@ -27,11 +27,10 @@ class RankingTurmasService {
     
     const melhor = ranking[0];
     return {
-      turmaId: melhor.turma_id,
+      turmaId: melhor.id_turma,
       nomeTurma: melhor.nome_turma,
-      escolaId: melhor.escola_id,
-      mediaPercentual: melhor.media_percentual,
-      quantidadeAlunos: melhor.quantidade_alunos,
+      periodo: melhor.periodo,
+      desempenho: melhor.desempenho,
       posicao: 1
     };
   }
