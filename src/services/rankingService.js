@@ -17,18 +17,6 @@ class RankingService {
     });
   }
 
-  async registrarHistorico(dados) {
-    const { alunoId, turmaId, escolaId, nome, codIdentificacao, acertos, erros, tempoSegundos, operacao, pontuacao, detalhesCorrecao } = dados;
-    
-    if (!alunoId || !turmaId || !escolaId || !nome || !codIdentificacao) {
-      throw new Error('Dados incompletos para registrar histórico');
-    }
-    
-    return await RankingModel.registrarHistorico({
-      alunoId, turmaId, escolaId, nome, codIdentificacao, acertos, erros, tempoSegundos, operacao, pontuacao, detalhesCorrecao
-    });
-  }
-
   async obterRanking(filtros) {
     return await RankingModel.obterRanking(filtros);
   }
