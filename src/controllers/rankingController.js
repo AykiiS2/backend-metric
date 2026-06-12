@@ -3,8 +3,8 @@ const rankingService = require('../services/rankingService');
 class RankingController {
   async atualizarRanking(req, res, next) {
     try {
-      const { alunoId, escolaId, turmaId, nome, codIdentificacao, pontuacao, tempo } = req.body;
-      console.log('[RankingController] Atualizando ranking:', { alunoId, nome, codIdentificacao, pontuacao });
+      const { alunoId, escolaId, turmaId, nome, codIdentificacao, pontuacao, tempo, acertos, erros, tempoSegundos, operacao } = req.body;
+      console.log('[RankingController] Atualizando ranking:', { alunoId, nome, codIdentificacao, pontuacao, acertos, erros });
 
       if (!alunoId) {
         return res.status(400).json({ error: 'alunoId é obrigatório' });
@@ -32,59 +32,17 @@ class RankingController {
         nome,
         codIdentificacao,
         pontuacao,
-        tempo
+        tempo,
+        acertos,
+        erros,
+        tempoSegundos,
+        operacao
       });
 
       console.log('[RankingController] Ranking atualizado com sucesso');
       res.json({ success: true, data: resultado });
     } catch (error) {
       console.error('[RankingController] Erro ao atualizar ranking:', error);
-      next(error);
-    }
-  }
-
-  async registrarHistorico(req, res, next) {
-    try {
-      const { alunoId, turmaId, escolaId, nome, codIdentificacao, acertos, erros, tempoSegundos, operacao, pontuacao, detalhesCorrecao } = req.body;
-      console.log('[RankingController] Registrando histórico de correção:', { alunoId, codIdentificacao, acertos, erros });
-
-      if (!alunoId) {
-        return res.status(400).json({ error: 'alunoId é obrigatório' });
-      }
-      if (!turmaId) {
-        return res.status(400).json({ error: 'turmaId é obrigatório' });
-      }
-      if (!escolaId) {
-        return res.status(400).json({ error: 'escolaId é obrigatório' });
-      }
-      if (!nome || nome.trim() === '') {
-        return res.status(400).json({ error: 'nome é obrigatório' });
-      }
-      if (!codIdentificacao || codIdentificacao.trim() === '') {
-        return res.status(400).json({ error: 'codIdentificacao é obrigatório' });
-      }
-      if (acertos === undefined || erros === undefined) {
-        return res.status(400).json({ error: 'acertos e erros são obrigatórios' });
-      }
-
-      const resultado = await rankingService.registrarHistorico({
-        alunoId,
-        turmaId,
-        escolaId,
-        nome,
-        codIdentificacao,
-        acertos,
-        erros,
-        tempoSegundos,
-        operacao,
-        pontuacao,
-        detalhesCorrecao
-      });
-
-      console.log('[RankingController] Histórico registrado com sucesso');
-      res.status(201).json({ success: true, data: resultado });
-    } catch (error) {
-      console.error('[RankingController] Erro ao registrar histórico:', error);
       next(error);
     }
   }
