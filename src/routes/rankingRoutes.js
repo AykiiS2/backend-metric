@@ -6,3 +6,5 @@ router.post('/atualizar', tokenMiddleware, rankingController.atualizarRanking);
 router.post('/historico', tokenMiddleware, rankingController.registrarHistorico);
 router.get('/obter', rankingController.obterRanking);
 router.get('/posicao/:alunoId', rankingController.obterPosicaoAluno);
+
+module.exports = router;
