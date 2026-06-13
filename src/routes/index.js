@@ -14,9 +14,19 @@ router.use('/escolas', escolasRoutes);
 router.use('/turmas', turmasRoutes);
 router.use('/alunos', alunosRoutes);
 router.use('/auth', authRoutes);
-router.use('/ranking', rankingRoutes);
-router.use('/ranking-escolas', rankingEscolasRoutes);
-router.use('/ranking-turmas', rankingTurmasRoutes);
+
+router.use('/ranking_alunos', rankingRoutes);
+router.use('/ranking_escolas', rankingEscolasRoutes);
+router.use('/ranking_turmas', rankingTurmasRoutes);
+
 router.use('/distribuicao-notas', distribuicaoNotasRoutes);
+
+router.get('/cors-test', (req, res) => {
+    res.json({ 
+        message: 'CORS funcionando!',
+        origin: req.headers.origin || 'não especificada',
+        timestamp: new Date().toISOString()
+    });
+});
 
 module.exports = router;
