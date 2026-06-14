@@ -15,7 +15,7 @@ router.use('/turmas', turmasRoutes);
 router.use('/alunos', alunosRoutes);
 router.use('/auth', authRoutes);
 
-router.use('/ranking_alunos', rankingRoutes);
+router.use('/ranking', rankingRoutes);
 router.use('/ranking_escolas', rankingEscolasRoutes);
 router.use('/ranking_turmas', rankingTurmasRoutes);
 
