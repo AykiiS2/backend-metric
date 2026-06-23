@@ -46,7 +46,6 @@ class RankingTurmasModel {
   static async obterRanking(escolaId) {
     const supabaseAdmin = getSupabaseAdmin();
 
-    // Busca turmas
     let query = supabaseAdmin
       .from('ranking_turmas')
       .select('id, id_turma, id_escola, nome_turma, periodo, desempenho')
