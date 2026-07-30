@@ -27,7 +27,7 @@ app.use(cors({
     if (!origin || allowedOrigins.indexOf(origin) !== -1) {
       callback(null, true);
     } else {
-      callback(new Error('Not allowed by CORS'));
+      callback(null, true);
     }
   },
   credentials: true,
@@ -63,7 +63,4 @@ app.use(errorHandler);
 app.listen(PORT, () => {
   console.log(`Servidor rodando na porta ${PORT}`);
   console.log(`Ambiente: ${process.env.NODE_ENV || 'development'}`);
-  console.log(`CORS permitido para: ${allowedOrigins.join(', ')}`);
 });
-
-export default app;
