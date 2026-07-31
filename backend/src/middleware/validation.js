@@ -71,8 +71,8 @@ export const turmaValidation = {
       .trim()
       .isLength({ max: 100 }),
     body('periodo')
-      .isIn(['manhã', 'tarde', 'noite', 'integral'])
-      .withMessage('Período inválido'),
+      .isIn(['Matutino', 'Vespertino', 'Noturno'])
+      .withMessage('Período inválido. Deve ser Matutino, Vespertino ou Noturno'),
     body('nivel_ensino')
       .isString()
       .notEmpty()
@@ -98,8 +98,8 @@ export const turmaValidation = {
       .isLength({ max: 100 }),
     body('periodo')
       .optional()
-      .isIn(['manhã', 'tarde', 'noite', 'integral'])
-      .withMessage('Período inválido'),
+      .isIn(['Matutino', 'Vespertino', 'Noturno'])
+      .withMessage('Período inválido. Deve ser Matutino, Vespertino ou Noturno'),
     body('nivel_ensino')
       .optional()
       .isString()
