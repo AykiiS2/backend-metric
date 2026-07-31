@@ -92,6 +92,13 @@ export const turmaController = {
       const { id } = req.params;
       const { nome_turma, periodo, nivel_ensino, serie, id_escola } = req.body;
 
+      if (!nome_turma || !periodo || !nivel_ensino || !serie || !id_escola) {
+        return res.status(400).json({
+          success: false,
+          message: 'Todos os campos são obrigatórios'
+        });
+      }
+
       const turma = await turmaModel.update(id, { nome_turma, periodo, nivel_ensino, serie, id_escola });
       res.status(200).json({
         success: true,
@@ -111,6 +118,7 @@ export const turmaController = {
         message: 'Turma deletada com sucesso'
       });
     } catch (error) {
+      console.error('Erro ao deletar turma:', error);
       next(error);
     }
   }
