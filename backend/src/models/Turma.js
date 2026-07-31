@@ -31,6 +31,38 @@ export class Turma extends BaseModel {
     }
   }
 
+  async findAll() {
+    try {
+      const { data, error } = await supabase
+        .from('turmas')
+        .select('*');
+
+      if (error) {
+        throw new AppError(`Erro ao buscar turmas: ${error.message}`, 400);
+      }
+      return data || [];
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async findById(id) {
+    try {
+      const { data, error } = await supabase
+        .from('turmas')
+        .select('*')
+        .eq('id_turma', id)
+        .single();
+
+      if (error) {
+        throw new AppError('Turma não encontrada', 404);
+      }
+      return data;
+    } catch (error) {
+      throw error;
+    }
+  }
+
   async update(id, data) {
     try {
       const { nome_turma, periodo, nivel_ensino, serie, id_escola } = data;
@@ -54,6 +86,21 @@ export class Turma extends BaseModel {
       }
 
       return turma;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async delete(id) {
+    try {
+      const { error } = await supabase
+        .from('turmas')
+        .delete()
+        .eq('id_turma', id);
+
+      if (error) {
+        throw new AppError(`Erro ao deletar turma: ${error.message}`, 500);
+      }
     } catch (error) {
       throw error;
     }
@@ -88,7 +135,7 @@ export class Turma extends BaseModel {
         .eq('id_escola', escolaId);
 
       if (error) throw error;
-      return data;
+      return data || [];
     } catch (error) {
       throw new AppError(`Erro ao buscar turmas: ${error.message}`, 400);
     }
@@ -101,7 +148,7 @@ export class Turma extends BaseModel {
         .select('*');
 
       if (error) throw error;
-      return data;
+      return data || [];
     } catch (error) {
       throw new AppError(`Erro ao buscar ranking das turmas: ${error.message}`, 400);
     }
