@@ -29,7 +29,6 @@ export const authController = {
       });
 
       if (authError) {
-        console.error('Erro no login Supabase:', authError);
         return res.status(401).json({
           success: false,
           message: 'Credenciais inválidas'
@@ -50,17 +49,26 @@ export const authController = {
           role: 'professor'
         },
         process.env.JWT_SECRET,
-        { expiresIn: '24h' }
+        { expiresIn: '7d' }
       );
+
+      const { data: teacherData } = await supabase
+        .from('professores')
+        .select('id, nome, email, role')
+        .eq('email', user.email)
+        .single();
 
       res.json({
         success: true,
-        token: token,
-        user: {
-          id: user.id,
-          email: user.email,
-          created_at: user.created_at,
-          last_sign_in_at: user.last_sign_in_at
+        data: {
+          token: token,
+          refreshToken: null,
+          user: {
+            id: user.id,
+            nome: teacherData?.nome || user.email,
+            email: user.email,
+            role: 'professor'
+          }
         }
       });
 
@@ -110,7 +118,7 @@ export const authController = {
           role: 'aluno'
         },
         process.env.JWT_SECRET,
-        { expiresIn: '24h' }
+        { expiresIn: '7d' }
       );
 
       res.json({
