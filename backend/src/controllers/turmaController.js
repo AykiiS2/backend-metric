@@ -5,7 +5,16 @@ const turmaModel = new Turma();
 export const turmaController = {
   async create(req, res, next) {
     try {
-      const turma = await turmaModel.create(req.body);
+      const { nome_turma, periodo, nivel_ensino, serie, id_escola } = req.body;
+
+      if (!nome_turma || !periodo || !nivel_ensino || !serie || !id_escola) {
+        return res.status(400).json({
+          success: false,
+          message: 'Todos os campos são obrigatórios'
+        });
+      }
+
+      const turma = await turmaModel.create({ nome_turma, periodo, nivel_ensino, serie, id_escola });
       res.status(201).json({
         success: true,
         data: turma
@@ -81,7 +90,9 @@ export const turmaController = {
   async update(req, res, next) {
     try {
       const { id } = req.params;
-      const turma = await turmaModel.update(id, req.body);
+      const { nome_turma, periodo, nivel_ensino, serie, id_escola } = req.body;
+
+      const turma = await turmaModel.update(id, { nome_turma, periodo, nivel_ensino, serie, id_escola });
       res.status(200).json({
         success: true,
         data: turma
