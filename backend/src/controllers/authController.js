@@ -52,12 +52,6 @@ export const authController = {
         { expiresIn: '7d' }
       );
 
-      const { data: teacherData } = await supabase
-        .from('professores')
-        .select('id, nome, email, role')
-        .eq('email', user.email)
-        .single();
-
       res.json({
         success: true,
         data: {
@@ -65,7 +59,7 @@ export const authController = {
           refreshToken: null,
           user: {
             id: user.id,
-            nome: teacherData?.nome || user.email,
+            nome: user.email?.split('@').first || user.email,
             email: user.email,
             role: 'professor'
           }
