@@ -15,12 +15,6 @@ export const authenticateToken = async (req, res, next) => {
     try {
       const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-      const { data: { user }, error } = await supabase.auth.getUser(token);
-
-      if (error || !user) {
-        throw new AppError('Token inválido ou expirado', 401);
-      }
-
       if (decoded.role !== 'professor') {
         throw new AppError('Usuário não é um professor', 403);
       }
