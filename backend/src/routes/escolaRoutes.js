@@ -25,7 +25,6 @@ router.post('/',
   (req, res, next) => {
     console.log('🔍 [POST /escolas] Validado com sucesso');
     console.log('🔍 [POST /escolas] User ID:', req.userId);
-    console.log('🔍 [POST /escolas] Teacher ID:', req.teacherId);
     console.log('🔍 [POST /escolas] Body recebido:', req.body);
     next();
   },
