@@ -5,7 +5,16 @@ const escolaModel = new Escola();
 export const escolaController = {
   async create(req, res, next) {
     try {
-      const escola = await escolaModel.create(req.body);
+      const { nome_escola } = req.body;
+
+      if (!nome_escola) {
+        return res.status(400).json({
+          success: false,
+          message: 'Nome da escola é obrigatório'
+        });
+      }
+
+      const escola = await escolaModel.create({ nome_escola });
       res.status(201).json({
         success: true,
         data: escola
@@ -68,7 +77,16 @@ export const escolaController = {
   async update(req, res, next) {
     try {
       const { id } = req.params;
-      const escola = await escolaModel.update(id, req.body);
+      const { nome_escola } = req.body;
+
+      if (!nome_escola) {
+        return res.status(400).json({
+          success: false,
+          message: 'Nome da escola é obrigatório'
+        });
+      }
+
+      const escola = await escolaModel.update(id, { nome_escola });
       res.status(200).json({
         success: true,
         data: escola
