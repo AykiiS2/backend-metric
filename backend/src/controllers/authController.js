@@ -123,10 +123,14 @@ export const authController = {
 
       res.json({
         success: true,
-        token: token,
-        user: {
-          id: user.id,
-          email: user.email
+        data: {
+          token: token,
+          refreshToken: null,
+          user: {
+            id: user.id,
+            email: user.email,
+            role: 'aluno'
+          }
         }
       });
 
@@ -163,8 +167,10 @@ export const authController = {
 
       res.json({
         success: true,
-        token: session.access_token,
-        refresh_token: session.refresh_token
+        data: {
+          token: session.access_token,
+          refreshToken: session.refresh_token
+        }
       });
 
     } catch (error) {
@@ -216,7 +222,7 @@ export const authController = {
 
       res.json({
         success: true,
-        user: decoded
+        data: decoded
       });
 
     } catch (error) {
