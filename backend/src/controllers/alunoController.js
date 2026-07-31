@@ -6,7 +6,23 @@ const alunoModel = new Aluno();
 export const alunoController = {
   async create(req, res, next) {
     try {
-      const aluno = await alunoModel.create(req.body);
+      const { rm, email, senha, nome_aluno, id_escola, id_turma } = req.body;
+
+      if (!rm || !email || !senha || !nome_aluno || !id_escola) {
+        return res.status(400).json({
+          success: false,
+          message: 'Todos os campos obrigatórios devem ser preenchidos'
+        });
+      }
+
+      const aluno = await alunoModel.create({
+        rm,
+        email,
+        senha,
+        nome_aluno,
+        id_escola,
+        id_turma
+      });
       res.status(201).json({
         success: true,
         data: aluno
@@ -108,7 +124,21 @@ export const alunoController = {
   async update(req, res, next) {
     try {
       const { id } = req.params;
-      const aluno = await alunoModel.update(id, req.body);
+      const { nome_aluno, rm, email } = req.body;
+
+      if (!nome_aluno && !rm && !email) {
+        return res.status(400).json({
+          success: false,
+          message: 'Pelo menos um campo deve ser informado para atualização'
+        });
+      }
+
+      const updateData = {};
+      if (nome_aluno) updateData.nome_aluno = nome_aluno;
+      if (rm) updateData.rm = rm;
+      if (email) updateData.email = email;
+
+      const aluno = await alunoModel.update(id, updateData);
       res.status(200).json({
         success: true,
         data: aluno
@@ -127,6 +157,7 @@ export const alunoController = {
         message: 'Aluno deletado com sucesso'
       });
     } catch (error) {
+      console.error('Erro ao deletar aluno:', error);
       next(error);
     }
   },
