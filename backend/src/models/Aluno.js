@@ -198,4 +198,95 @@ export class Aluno extends BaseModel {
         .select('*')
         .eq('id_turma', turmaId);
 
-      if (error
+      if (error) throw error;
+      return data || [];
+    } catch (error) {
+      throw new AppError(`Erro ao buscar ranking da turma: ${error.message}`, 400);
+    }
+  }
+
+  async updatePontuacao(id) {
+    try {
+      const { data, error } = await supabase.rpc('atualizar_pontuacao_aluno', {
+        p_aluno_id: id
+      });
+
+      if (error) throw error;
+      return data;
+    } catch (error) {
+      throw new AppError(`Erro ao atualizar pontuação: ${error.message}`, 400);
+    }
+  }
+
+  async verifyPassword(rm, password) {
+    try {
+      const { data, error } = await supabase
+        .from('alunos')
+        .select('senha')
+        .eq('rm', rm)
+        .single();
+
+      if (error || !data) {
+        throw new AppError('Aluno não encontrado', 404);
+      }
+
+      const isValid = await bcrypt.compare(password, data.senha);
+      return isValid;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async updatePassword(id, newPassword) {
+    try {
+      const salt = await bcrypt.genSalt(10);
+      const hashedPassword = await bcrypt.hash(newPassword, salt);
+
+      const { data: aluno, error } = await supabase
+        .from('alunos')
+        .update({ senha: hashedPassword })
+        .eq('id_aluno', id)
+        .select()
+        .single();
+
+      if (error) {
+        throw new AppError(`Erro ao atualizar senha: ${error.message}`, 400);
+      }
+
+      return aluno;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async validateAluno(rm, senha) {
+    try {
+      const { data, error } = await supabase
+        .from('alunos')
+        .select('id_aluno, rm, nome_aluno, senha, id_escola, id_turma, pontuacao')
+        .eq('rm', rm)
+        .single();
+
+      if (error || !data) {
+        return null;
+      }
+
+      const isValid = await bcrypt.compare(senha, data.senha);
+      
+      if (!isValid) {
+        return null;
+      }
+
+      return {
+        id: data.id_aluno,
+        rm: data.rm,
+        nome: data.nome_aluno,
+        id_escola: data.id_escola,
+        id_turma: data.id_turma,
+        pontuacao: data.pontuacao
+      };
+    } catch (error) {
+      throw new AppError(`Erro ao validar aluno: ${error.message}`, 400);
+    }
+  }
+}
