@@ -7,6 +7,30 @@ export class Escola extends BaseModel {
     super('escolas');
   }
 
+  async create(data) {
+    try {
+      const { nome_escola } = data;
+
+      if (!nome_escola) {
+        throw new AppError('Nome da escola é obrigatório', 400);
+      }
+
+      const { data: escola, error } = await supabase
+        .from('escolas')
+        .insert([{ nome_escola }])
+        .select()
+        .single();
+
+      if (error) {
+        throw new AppError(`Erro ao criar escola: ${error.message}`, 500);
+      }
+
+      return escola;
+    } catch (error) {
+      throw error;
+    }
+  }
+
   async findWithTurmas(id) {
     try {
       const { data, error } = await supabase
