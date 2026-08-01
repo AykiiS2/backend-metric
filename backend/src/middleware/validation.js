@@ -188,7 +188,68 @@ export const salaValidation = {
     body('id_turma')
       .optional()
       .isUUID()
-      .withMessage('ID da turma inválido')
+      .withMessage('ID da turma inválido'),
+    body('id_aluno')
+      .optional()
+      .isUUID()
+      .withMessage('ID do aluno inválido'),
+    body('id_tabuada')
+      .optional()
+      .isString()
+      .withMessage('ID da tabuada inválido'),
+    body('tipo_tabuada')
+      .optional()
+      .isIn(['padrao', 'personalizada'])
+      .withMessage('Tipo de tabuada inválido'),
+    body('modo')
+      .optional()
+      .isIn(['ranqueado', 'treinamento'])
+      .withMessage('Modo inválido'),
+    body('data_hora')
+      .isISO8601()
+      .withMessage('Data e hora inválidas'),
+  ],
+  update: [
+    param('id')
+      .isUUID()
+      .withMessage('ID da sala inválido'),
+    body('nome_sala')
+      .optional()
+      .isString()
+      .trim()
+      .isLength({ max: 100 }),
+    body('id_escola')
+      .optional()
+      .isUUID()
+      .withMessage('ID da escola inválido'),
+    body('id_turma')
+      .optional()
+      .isUUID()
+      .withMessage('ID da turma inválido'),
+    body('id_aluno')
+      .optional()
+      .isUUID()
+      .withMessage('ID do aluno inválido'),
+    body('id_tabuada')
+      .optional()
+      .isString()
+      .withMessage('ID da tabuada inválido'),
+    body('tipo_tabuada')
+      .optional()
+      .isIn(['padrao', 'personalizada'])
+      .withMessage('Tipo de tabuada inválido'),
+    body('modo')
+      .optional()
+      .isIn(['ranqueado', 'treinamento'])
+      .withMessage('Modo inválido'),
+    body('data_hora')
+      .optional()
+      .isISO8601()
+      .withMessage('Data e hora inválidas'),
+    body('status')
+      .optional()
+      .isIn(['ativa', 'finalizada', 'cancelada'])
+      .withMessage('Status inválido'),
   ]
 };
 
