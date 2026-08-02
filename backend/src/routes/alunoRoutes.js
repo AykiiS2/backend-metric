@@ -5,6 +5,8 @@ import { validate, alunoValidation } from '../middleware/validation.js';
 
 const router = express.Router();
 
+router.post('/login', alunoController.login);
+
 router.use(authenticateToken);
 
 router.post('/', validate(alunoValidation.create), alunoController.create);
