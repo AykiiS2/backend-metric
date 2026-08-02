@@ -1,6 +1,7 @@
 import { Aluno } from '../models/Aluno.js';
 import { AppError } from '../utils/errors.js';
 import jwt from 'jsonwebtoken';
+import bcrypt from 'bcryptjs';
 
 const alunoModel = new Aluno();
 
@@ -25,7 +26,9 @@ export const alunoController = {
         });
       }
 
-      if (aluno.senha !== senha) {
+      const isValidPassword = await bcrypt.compare(senha, aluno.senha);
+
+      if (!isValidPassword) {
         return res.status(401).json({
           success: false,
           message: 'RM ou senha inválidos'
