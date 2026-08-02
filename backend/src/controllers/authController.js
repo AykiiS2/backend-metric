@@ -75,68 +75,6 @@ export const authController = {
     }
   },
 
-  async loginAluno(req, res) {
-    try {
-      const { email, password } = req.body;
-
-      if (!email || !password) {
-        return res.status(400).json({
-          success: false,
-          message: 'Email e senha são obrigatórios'
-        });
-      }
-
-      const { data: { user }, error: authError } = await supabase.auth.signInWithPassword({
-        email: email,
-        password: password
-      });
-
-      if (authError) {
-        return res.status(401).json({
-          success: false,
-          message: 'Credenciais inválidas'
-        });
-      }
-
-      if (!user) {
-        return res.status(401).json({
-          success: false,
-          message: 'Usuário não encontrado'
-        });
-      }
-
-      const token = jwt.sign(
-        { 
-          id: user.id, 
-          email: user.email,
-          role: 'aluno'
-        },
-        process.env.JWT_SECRET,
-        { expiresIn: '7d' }
-      );
-
-      res.json({
-        success: true,
-        data: {
-          token: token,
-          refreshToken: null,
-          user: {
-            id: user.id,
-            email: user.email,
-            role: 'aluno'
-          }
-        }
-      });
-
-    } catch (error) {
-      console.error('Erro no loginAluno:', error);
-      res.status(500).json({
-        success: false,
-        message: 'Erro interno do servidor'
-      });
-    }
-  },
-
   async refreshToken(req, res) {
     try {
       const { refresh_token } = req.body;
