@@ -1,9 +1,61 @@
 import { Aluno } from '../models/Aluno.js';
 import { AppError } from '../utils/errors.js';
+import jwt from 'jsonwebtoken';
 
 const alunoModel = new Aluno();
 
 export const alunoController = {
+  async login(req, res, next) {
+    try {
+      const { rm, senha } = req.body;
+
+      if (!rm || !senha) {
+        return res.status(400).json({
+          success: false,
+          message: 'RM e senha são obrigatórios'
+        });
+      }
+
+      const aluno = await alunoModel.findByRM(rm);
+
+      if (!aluno) {
+        return res.status(401).json({
+          success: false,
+          message: 'RM ou senha inválidos'
+        });
+      }
+
+      if (aluno.senha !== senha) {
+        return res.status(401).json({
+          success: false,
+          message: 'RM ou senha inválidos'
+        });
+      }
+
+      const token = jwt.sign(
+        {
+          id: aluno.id_aluno,
+          rm: aluno.rm,
+          email: aluno.email,
+          role: 'aluno'
+        },
+        process.env.JWT_SECRET,
+        { expiresIn: '7d' }
+      );
+
+      const { senha: _, ...alunoSemSenha } = aluno;
+
+      res.status(200).json({
+        success: true,
+        message: 'Login realizado com sucesso',
+        data: alunoSemSenha,
+        token: token
+      });
+    } catch (error) {
+      next(error);
+    }
+  },
+
   async create(req, res, next) {
     try {
       const { rm, email, senha, nome_aluno, id_escola, id_turma } = req.body;
