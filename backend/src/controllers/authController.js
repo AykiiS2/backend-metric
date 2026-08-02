@@ -59,7 +59,7 @@ export const authController = {
           refreshToken: null,
           user: {
             id: user.id,
-            nome: user.email?.split('@').first || user.email,
+            nome: user.email?.split('@')[0] || user.email,
             email: user.email,
             role: 'professor'
           }
@@ -68,6 +68,43 @@ export const authController = {
 
     } catch (error) {
       console.error('Erro no loginProfessor:', error);
+      res.status(500).json({
+        success: false,
+        message: 'Erro interno do servidor'
+      });
+    }
+  },
+
+  async loginAluno(req, res) {
+    try {
+      const aluno = req.aluno;
+
+      const token = jwt.sign(
+        {
+          id: aluno.id,
+          rm: aluno.rm,
+          role: 'aluno'
+        },
+        process.env.JWT_SECRET,
+        { expiresIn: '7d' }
+      );
+
+      res.json({
+        success: true,
+        data: {
+          token: token,
+          refreshToken: null,
+          user: {
+            id: aluno.id,
+            rm: aluno.rm,
+            nome: aluno.nome,
+            role: 'aluno'
+          }
+        }
+      });
+
+    } catch (error) {
+      console.error('Erro no loginAluno:', error);
       res.status(500).json({
         success: false,
         message: 'Erro interno do servidor'
