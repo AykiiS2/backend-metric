@@ -15,8 +15,8 @@ export const authenticateToken = async (req, res, next) => {
     try {
       const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-      if (decoded.role !== 'professor') {
-        throw new AppError('Usuário não é um professor', 403);
+      if (decoded.role !== 'professor' && decoded.role !== 'aluno') {
+        throw new AppError('Usuário não autorizado', 403);
       }
 
       req.user = {
@@ -75,45 +75,6 @@ export const verifyTeacherCredentials = async (req, res, next) => {
       role: 'professor',
       token: customToken,
       refreshToken: data.session.refresh_token
-    };
-
-    next();
-  } catch (error) {
-    next(error);
-  }
-};
-
-export const authenticateAluno = async (req, res, next) => {
-  try {
-    const { rm, senha } = req.body;
-
-    if (!rm || !senha) {
-      throw new AppError('RM e senha são obrigatórios', 400);
-    }
-
-    const { data: aluno, error } = await supabase
-      .from('alunos')
-      .select('id_aluno, rm, nome_aluno, senha, id_escola, id_turma, pontuacao')
-      .eq('rm', rm)
-      .single();
-
-    if (error || !aluno) {
-      throw new AppError('Aluno não encontrado', 404);
-    }
-
-    const isValidPassword = await bcrypt.compare(senha, aluno.senha);
-
-    if (!isValidPassword) {
-      throw new AppError('Senha inválida', 401);
-    }
-
-    req.aluno = {
-      id: aluno.id_aluno,
-      rm: aluno.rm,
-      nome: aluno.nome_aluno,
-      id_escola: aluno.id_escola,
-      id_turma: aluno.id_turma,
-      pontuacao: aluno.pontuacao
     };
 
     next();
