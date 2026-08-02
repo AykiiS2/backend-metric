@@ -3,13 +3,13 @@ import cors from 'cors';
 import helmet from 'helmet';
 import compression from 'compression';
 
-import authRoutes from './src/routes/authRoutes.js';
-import escolaRoutes from './src/routes/escolaRoutes.js';
-import turmaRoutes from './src/routes/turmaRoutes.js';
-import alunoRoutes from './src/routes/alunoRoutes.js';
-import rankingRoutes from './src/routes/rankingRoutes.js';
-import lobbyRoutes from './src/routes/lobbyRoutes.js';
-import { errorHandler } from './src/utils/errors.js';
+import authRoutes from './backend/src/routes/authRoutes.js';
+import escolaRoutes from './backend/src/routes/escolaRoutes.js';
+import turmaRoutes from './backend/src/routes/turmaRoutes.js';
+import alunoRoutes from './backend/src/routes/alunoRoutes.js';
+import rankingRoutes from './backend/src/routes/rankingRoutes.js';
+import lobbyRoutes from './backend/src/routes/lobbyRoutes.js';
+import { errorHandler } from './backend/src/utils/errors.js';
 
 const app = express();
 const PORT = process.env.PORT || 3000;
