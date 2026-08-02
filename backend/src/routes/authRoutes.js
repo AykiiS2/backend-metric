@@ -1,7 +1,7 @@
 import express from 'express';
 import { authController } from '../controllers/authController.js';
-import { authenticateToken } from '../middleware/auth.js';
-import { validate, loginValidation } from '../middleware/validation.js';
+import { authenticateToken, authenticateAluno } from '../middleware/auth.js';
+import { validate, loginValidation, alunoLoginValidation } from '../middleware/validation.js';
 import rateLimit from 'express-rate-limit';
 
 const router = express.Router();
@@ -15,6 +15,7 @@ const loginLimiter = rateLimit({
 });
 
 router.post('/login/professor', loginLimiter, validate(loginValidation), authController.loginProfessor);
+router.post('/login/aluno', loginLimiter, validate(alunoLoginValidation), authenticateAluno, authController.loginAluno);
 router.post('/refresh-token', authController.refreshToken);
 router.post('/logout', authenticateToken, authController.logoutProfessor);
 router.get('/verify', authenticateToken, authController.verifyToken);
