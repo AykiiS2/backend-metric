@@ -35,6 +35,45 @@ export const authenticateToken = async (req, res, next) => {
   }
 };
 
+export const authenticateAluno = async (req, res, next) => {
+  try {
+    const { rm, senha } = req.body;
+
+    if (!rm || !senha) {
+      throw new AppError('RM e senha são obrigatórios', 400);
+    }
+
+    const { data: aluno, error } = await supabase
+      .from('alunos')
+      .select('id_aluno, rm, nome_aluno, senha, id_escola, id_turma, pontuacao')
+      .eq('rm', rm)
+      .single();
+
+    if (error || !aluno) {
+      throw new AppError('Aluno não encontrado', 404);
+    }
+
+    const isValidPassword = await bcrypt.compare(senha, aluno.senha);
+
+    if (!isValidPassword) {
+      throw new AppError('Senha inválida', 401);
+    }
+
+    req.aluno = {
+      id: aluno.id_aluno,
+      rm: aluno.rm,
+      nome: aluno.nome_aluno,
+      id_escola: aluno.id_escola,
+      id_turma: aluno.id_turma,
+      pontuacao: aluno.pontuacao
+    };
+
+    next();
+  } catch (error) {
+    next(error);
+  }
+};
+
 export const verifyTeacherCredentials = async (req, res, next) => {
   try {
     const { email, password } = req.body;
