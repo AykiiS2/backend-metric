@@ -74,6 +74,19 @@ router.get('/salas/turma/:turmaId', async (req, res, next) => {
   }
 });
 
+router.get('/salas/aluno/:alunoId', async (req, res, next) => {
+  try {
+    const { alunoId } = req.params;
+    const salas = await salaModel.findByAluno(alunoId);
+    res.status(200).json({
+      success: true,
+      data: salas
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
 router.get('/salas/codigo/:codigo', async (req, res, next) => {
   try {
     const { codigo } = req.params;
@@ -103,7 +116,7 @@ router.get('/salas/:id', async (req, res, next) => {
 router.get('/salas/:id/alunos', async (req, res, next) => {
   try {
     const { id } = req.params;
-    const alunos = await salaModel.getAlunosNaSala(id);
+    const alunos = await logEntradaModel.getAlunosNaSala(id);
     res.status(200).json({
       success: true,
       data: alunos
