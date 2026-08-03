@@ -176,80 +176,87 @@ export const alunoValidation = {
 
 export const salaValidation = {
   create: [
-    body('nome_sala')
+    body('nomeSala')
       .isString()
       .notEmpty()
       .withMessage('Nome da sala é obrigatório')
       .trim()
       .isLength({ max: 100 }),
-    body('id_escola')
+    body('idEscola')
       .isUUID()
       .withMessage('ID da escola inválido'),
-    body('id_turma')
-      .optional()
+    body('idTurma')
       .isUUID()
       .withMessage('ID da turma inválido'),
-    body('id_aluno')
+    body('idAluno')
       .optional()
       .isUUID()
       .withMessage('ID do aluno inválido'),
-    body('id_tabuada')
+    body('idTabuada')
       .optional()
       .isString()
       .withMessage('ID da tabuada inválido'),
-    body('tipo_tabuada')
+    body('tipoTabuada')
       .optional()
       .isIn(['padrao', 'personalizada'])
       .withMessage('Tipo de tabuada inválido'),
     body('modo')
       .optional()
-      .isIn(['ranqueado', 'treinamento'])
-      .withMessage('Modo inválido'),
-    body('data_hora')
+      .isIn(['RANQUEADO', 'TREINAMENTO'])
+      .withMessage('Modo inválido. Deve ser RANQUEADO ou TREINAMENTO'),
+    body('dataHora')
       .isISO8601()
       .withMessage('Data e hora inválidas'),
+    body('visibilidade')
+      .optional()
+      .isIn(['turma', 'aluno'])
+      .withMessage('Visibilidade inválida. Deve ser turma ou aluno'),
   ],
   update: [
     param('id')
       .isUUID()
       .withMessage('ID da sala inválido'),
-    body('nome_sala')
+    body('nomeSala')
       .optional()
       .isString()
       .trim()
       .isLength({ max: 100 }),
-    body('id_escola')
+    body('idEscola')
       .optional()
       .isUUID()
       .withMessage('ID da escola inválido'),
-    body('id_turma')
+    body('idTurma')
       .optional()
       .isUUID()
       .withMessage('ID da turma inválido'),
-    body('id_aluno')
+    body('idAluno')
       .optional()
       .isUUID()
       .withMessage('ID do aluno inválido'),
-    body('id_tabuada')
+    body('idTabuada')
       .optional()
       .isString()
       .withMessage('ID da tabuada inválido'),
-    body('tipo_tabuada')
+    body('tipoTabuada')
       .optional()
       .isIn(['padrao', 'personalizada'])
       .withMessage('Tipo de tabuada inválido'),
     body('modo')
       .optional()
-      .isIn(['ranqueado', 'treinamento'])
-      .withMessage('Modo inválido'),
-    body('data_hora')
+      .isIn(['RANQUEADO', 'TREINAMENTO'])
+      .withMessage('Modo inválido. Deve ser RANQUEADO ou TREINAMENTO'),
+    body('dataHora')
       .optional()
       .isISO8601()
       .withMessage('Data e hora inválidas'),
     body('status')
       .optional()
-      .isIn(['ativa', 'finalizada', 'cancelada'])
-      .withMessage('Status inválido'),
+      .isIn(['AGENDADA', 'ABERTA', 'ENCERRADA', 'CANCELADA'])
+      .withMessage('Status inválido. Deve ser AGENDADA, ABERTA, ENCERRADA ou CANCELADA'),
+    body('visibilidade')
+      .optional()
+      .isIn(['turma', 'aluno'])
+      .withMessage('Visibilidade inválida. Deve ser turma ou aluno'),
   ]
 };
 
@@ -263,10 +270,10 @@ export const logValidation = {
       .withMessage('ID do aluno inválido')
   ],
   resultado: [
-    body('id_sala')
+    body('sala_id')
       .isUUID()
       .withMessage('ID da sala inválido'),
-    body('id_aluno')
+    body('aluno_id')
       .isUUID()
       .withMessage('ID do aluno inválido'),
     body('acertos')
@@ -277,13 +284,13 @@ export const logValidation = {
       .optional()
       .isInt({ min: 0 })
       .withMessage('Erros deve ser um número inteiro positivo'),
-    body('tempo_total')
+    body('tempo_segundos')
       .optional()
       .isInt({ min: 0 })
-      .withMessage('Tempo total deve ser um número inteiro positivo'),
-    body('pontuacao_obtida')
+      .withMessage('Tempo deve ser um número inteiro positivo'),
+    body('nota')
       .optional()
-      .isInt({ min: 0 })
-      .withMessage('Pontuação obtida deve ser um número inteiro positivo')
+      .isDecimal()
+      .withMessage('Nota inválida')
   ]
 };
