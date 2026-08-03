@@ -19,11 +19,17 @@ export class LobbySala extends BaseModel {
   async create(salaData) {
     try {
       const codigo = this.generateAccessCode();
-      
+
       const data = {
-        ...salaData,
+        nome: salaData.nomeSala,
+        escola_id: salaData.idEscola,
+        turma_id: salaData.idTurma,
+        aluno_id: salaData.idAluno || null,
         codigo_acesso: codigo,
-        status: 'ativa'
+        modo: salaData.modo || 'TREINAMENTO',
+        status: 'AGENDADA',
+        inicio: salaData.dataHora,
+        fim: salaData.fim || null,
       };
 
       const { data: result, error } = await supabase
@@ -36,6 +42,35 @@ export class LobbySala extends BaseModel {
       return result;
     } catch (error) {
       throw new AppError(`Erro ao criar sala: ${error.message}`, 400);
+    }
+  }
+
+  async findAll() {
+    try {
+      const { data, error } = await supabase
+        .from('lobby_salas')
+        .select('*')
+        .order('inicio', { ascending: false });
+
+      if (error) throw error;
+      return data || [];
+    } catch (error) {
+      throw new AppError(`Erro ao buscar salas: ${error.message}`, 400);
+    }
+  }
+
+  async findById(id) {
+    try {
+      const { data, error } = await supabase
+        .from('lobby_salas')
+        .select('*')
+        .eq('id_sala', id)
+        .single();
+
+      if (error) throw error;
+      return data;
+    } catch (error) {
+      throw new AppError(`Erro ao buscar sala: ${error.message}`, 400);
     }
   }
 
@@ -58,16 +93,12 @@ export class LobbySala extends BaseModel {
     try {
       const { data, error } = await supabase
         .from('lobby_salas')
-        .select(`
-          *,
-          turmas (nome_turma),
-          escolas (nome_escola)
-        `)
-        .eq('id_escola', escolaId)
-        .order('created_at', { ascending: false });
+        .select('*')
+        .eq('escola_id', escolaId)
+        .order('inicio', { ascending: false });
 
       if (error) throw error;
-      return data;
+      return data || [];
     } catch (error) {
       throw new AppError(`Erro ao buscar salas: ${error.message}`, 400);
     }
@@ -78,10 +109,26 @@ export class LobbySala extends BaseModel {
       const { data, error } = await supabase
         .from('lobby_salas')
         .select('*')
-        .eq('id_turma', turmaId);
+        .eq('turma_id', turmaId)
+        .order('inicio', { ascending: false });
 
       if (error) throw error;
-      return data;
+      return data || [];
+    } catch (error) {
+      throw new AppError(`Erro ao buscar salas: ${error.message}`, 400);
+    }
+  }
+
+  async findByAluno(alunoId) {
+    try {
+      const { data, error } = await supabase
+        .from('lobby_salas')
+        .select('*')
+        .eq('aluno_id', alunoId)
+        .order('inicio', { ascending: false });
+
+      if (error) throw error;
+      return data || [];
     } catch (error) {
       throw new AppError(`Erro ao buscar salas: ${error.message}`, 400);
     }
@@ -92,10 +139,11 @@ export class LobbySala extends BaseModel {
       const { data, error } = await supabase
         .from('lobby_salas')
         .select('*')
-        .eq('status', 'ativa');
+        .eq('status', 'ABERTA')
+        .order('inicio', { ascending: true });
 
       if (error) throw error;
-      return data;
+      return data || [];
     } catch (error) {
       throw new AppError(`Erro ao buscar salas ativas: ${error.message}`, 400);
     }
@@ -103,29 +151,46 @@ export class LobbySala extends BaseModel {
 
   async updateStatus(id, status) {
     try {
-      const result = await this.update(id, { status });
-      return result;
-    } catch (error) {
-      throw new AppError(`Erro ao atualizar status da sala: ${error.message}`, 400);
-    }
-  }
-
-  async getAlunosNaSala(salaId) {
-    try {
       const { data, error } = await supabase
-        .from('logs_entrada')
-        .select(`
-          id_aluno,
-          data_hora_entrada,
-          alunos (id_aluno, nome_aluno, rm)
-        `)
-        .eq('id_sala', salaId)
-        .is('data_hora_saida', null);
+        .from('lobby_salas')
+        .update({ status })
+        .eq('id_sala', id)
+        .select()
+        .single();
 
       if (error) throw error;
       return data;
     } catch (error) {
-      throw new AppError(`Erro ao buscar alunos na sala: ${error.message}`, 400);
+      throw new AppError(`Erro ao atualizar status: ${error.message}`, 400);
+    }
+  }
+
+  async finalizar(id) {
+    try {
+      const { data, error } = await supabase
+        .from('lobby_salas')
+        .update({ status: 'ENCERRADA' })
+        .eq('id_sala', id)
+        .select()
+        .single();
+
+      if (error) throw error;
+      return data;
+    } catch (error) {
+      throw new AppError(`Erro ao finalizar sala: ${error.message}`, 400);
+    }
+  }
+
+  async delete(id) {
+    try {
+      const { error } = await supabase
+        .from('lobby_salas')
+        .delete()
+        .eq('id_sala', id);
+
+      if (error) throw error;
+    } catch (error) {
+      throw new AppError(`Erro ao deletar sala: ${error.message}`, 400);
     }
   }
 }
