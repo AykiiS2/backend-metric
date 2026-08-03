@@ -5,24 +5,25 @@ const salaModel = new Sala();
 export const salaController = {
   async create(req, res, next) {
     try {
-      const { nome_sala, id_escola, id_turma, id_aluno, id_tabuada, tipo_tabuada, modo, data_hora } = req.body;
+      const { nomeSala, idEscola, idTurma, idAluno, idTabuada, tipoTabuada, modo, dataHora, visibilidade } = req.body;
 
-      if (!nome_sala) {
+      if (!nomeSala || !idEscola || !idTurma || !dataHora) {
         return res.status(400).json({
           success: false,
-          message: 'Nome da sala é obrigatório'
+          message: 'Nome, escola, turma e data/hora são obrigatórios'
         });
       }
 
       const sala = await salaModel.create({
-        nome_sala,
-        id_escola,
-        id_turma,
-        id_aluno,
-        id_tabuada,
-        tipo_tabuada: tipo_tabuada || 'padrao',
-        modo: modo || 'treinamento',
-        data_hora
+        nomeSala,
+        idEscola,
+        idTurma,
+        idAluno,
+        idTabuada,
+        tipoTabuada: tipoTabuada || 'padrao',
+        modo: modo || 'TREINAMENTO',
+        dataHora,
+        visibilidade: visibilidade || 'turma'
       });
 
       res.status(201).json({
@@ -100,7 +101,7 @@ export const salaController = {
 
   async findAtivas(req, res, next) {
     try {
-      const salas = await salaModel.findAtivas();
+      const salas = await salaModel.getSalasAtivas();
       res.status(200).json({
         success: true,
         data: salas
@@ -113,19 +114,7 @@ export const salaController = {
   async update(req, res, next) {
     try {
       const { id } = req.params;
-      const { nome_sala, id_escola, id_turma, id_aluno, id_tabuada, tipo_tabuada, modo, data_hora, status } = req.body;
-
-      const updateData = {};
-      if (nome_sala !== undefined) updateData.nome_sala = nome_sala;
-      if (id_escola !== undefined) updateData.id_escola = id_escola;
-      if (id_turma !== undefined) updateData.id_turma = id_turma;
-      if (id_aluno !== undefined) updateData.id_aluno = id_aluno;
-      if (id_tabuada !== undefined) updateData.id_tabuada = id_tabuada;
-      if (tipo_tabuada !== undefined) updateData.tipo_tabuada = tipo_tabuada;
-      if (modo !== undefined) updateData.modo = modo;
-      if (data_hora !== undefined) updateData.data_hora = data_hora;
-      if (status !== undefined) updateData.status = status;
-
+      const updateData = req.body;
       const sala = await salaModel.update(id, updateData);
       res.status(200).json({
         success: true,
