@@ -12,9 +12,22 @@ export const PERIODS = {
 };
 
 export const LOBBY_STATUS = {
-  ACTIVE: 'ativa',
-  INACTIVE: 'inativa',
-  FINISHED: 'finalizada'
+  AGENDADA: 'AGENDADA',
+  ABERTA: 'ABERTA',
+  ENCERRADA: 'ENCERRADA',
+  CANCELADA: 'CANCELADA'
+};
+
+export const LOBBY_MODOS = {
+  RANQUEADO: 'RANQUEADO',
+  TREINAMENTO: 'TREINAMENTO'
+};
+
+export const PARTICIPANTE_STATUS = {
+  AGUARDANDO: 'AGUARDANDO',
+  FAZENDO: 'FAZENDO',
+  FINALIZOU: 'FINALIZOU',
+  SAIU: 'SAIU'
 };
 
 export const TABUADA_TYPES = {
