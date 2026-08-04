@@ -19,17 +19,16 @@ export class Sala extends BaseModel {
 
       const insertData = {
         nome_sala: nomeSala,
-        id_escola: idEscola,
-        id_turma: idTurma,
-        tabuada: tabuada,
+        escola_id: idEscola,
+        turma_id: idTurma,
         modo: modo,
-        data_hora: dataHora,
+        inicio: dataHora,
         codigo_acesso: codigoAcesso,
         status: 'AGENDADA'
       };
 
       if (idAluno) {
-        insertData.id_aluno = idAluno;
+        insertData.aluno_id = idAluno;
       }
 
       const { data: sala, error } = await supabase
@@ -53,7 +52,7 @@ export class Sala extends BaseModel {
       const { data, error } = await supabase
         .from('lobby_salas')
         .select('*')
-        .order('data_hora', { ascending: false });
+        .order('inicio', { ascending: false });
 
       if (error) {
         throw new AppError(`Erro ao buscar salas: ${error.message}`, 400);
@@ -86,8 +85,8 @@ export class Sala extends BaseModel {
       const { data, error } = await supabase
         .from('lobby_salas')
         .select('*')
-        .eq('id_escola', escolaId)
-        .order('data_hora', { ascending: false });
+        .eq('escola_id', escolaId)
+        .order('inicio', { ascending: false });
 
       if (error) throw error;
       return data || [];
@@ -101,8 +100,8 @@ export class Sala extends BaseModel {
       const { data, error } = await supabase
         .from('lobby_salas')
         .select('*')
-        .eq('id_turma', turmaId)
-        .order('data_hora', { ascending: false });
+        .eq('turma_id', turmaId)
+        .order('inicio', { ascending: false });
 
       if (error) throw error;
       return data || [];
@@ -116,8 +115,8 @@ export class Sala extends BaseModel {
       const { data, error } = await supabase
         .from('lobby_salas')
         .select('*')
-        .eq('id_aluno', alunoId)
-        .order('data_hora', { ascending: false });
+        .eq('aluno_id', alunoId)
+        .order('inicio', { ascending: false });
 
       if (error) throw error;
       return data || [];
@@ -132,8 +131,8 @@ export class Sala extends BaseModel {
         .from('lobby_salas')
         .select('*')
         .eq('status', 'AGENDADA')
-        .gte('data_hora', new Date().toISOString())
-        .order('data_hora', { ascending: true });
+        .gte('inicio', new Date().toISOString())
+        .order('inicio', { ascending: true });
 
       if (error) throw error;
       return data || [];
@@ -156,6 +155,40 @@ export class Sala extends BaseModel {
       }
 
       return data;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async update(id, data) {
+    try {
+      const { data: sala, error } = await supabase
+        .from('lobby_salas')
+        .update(data)
+        .eq('id_sala', id)
+        .select()
+        .single();
+
+      if (error) {
+        throw new AppError(`Erro ao atualizar sala: ${error.message}`, 500);
+      }
+
+      return sala;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async delete(id) {
+    try {
+      const { error } = await supabase
+        .from('lobby_salas')
+        .delete()
+        .eq('id_sala', id);
+
+      if (error) {
+        throw new AppError(`Erro ao deletar sala: ${error.message}`, 500);
+      }
     } catch (error) {
       throw error;
     }
