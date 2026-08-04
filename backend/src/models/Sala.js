@@ -9,30 +9,32 @@ export class Sala extends BaseModel {
 
   async create(data) {
     try {
-      const { nome_sala, id_escola, id_turma, id_aluno, id_tabuada, tipo_tabuada, modo, data_hora } = data;
+      const { nomeSala, idEscola, idTurma, idAluno, tabuada, modo, dataHora } = data;
 
-      if (!nome_sala) {
-        throw new AppError('Nome da sala é obrigatório', 400);
+      if (!nomeSala || !idEscola || !idTurma || !tabuada || !modo || !dataHora) {
+        throw new AppError('Todos os campos obrigatórios devem ser preenchidos', 400);
       }
 
       const codigoAcesso = this._gerarCodigoAcesso();
 
       const insertData = {
-        nome_sala,
+        nome_sala: nomeSala,
+        id_escola: idEscola,
+        id_turma: idTurma,
+        tabuada: tabuada,
+        modo: modo,
+        data_hora: dataHora,
         codigo_acesso: codigoAcesso,
-        id_escola: id_escola || null,
-        id_turma: id_turma || null,
-        id_aluno: id_aluno || null,
-        id_tabuada: id_tabuada || null,
-        tipo_tabuada: tipo_tabuada || 'padrao',
-        modo: modo || 'treinamento',
-        data_hora: data_hora || new Date().toISOString(),
-        status: 'ativa'
+        status: 'AGENDADA'
       };
+
+      if (idAluno) {
+        insertData.id_aluno = idAluno;
+      }
 
       const { data: sala, error } = await supabase
         .from('lobby_salas')
-        .insert(insertData)
+        .insert([insertData])
         .select()
         .single();
 
@@ -129,7 +131,7 @@ export class Sala extends BaseModel {
       const { data, error } = await supabase
         .from('lobby_salas')
         .select('*')
-        .eq('status', 'ativa')
+        .eq('status', 'AGENDADA')
         .gte('data_hora', new Date().toISOString())
         .order('data_hora', { ascending: true });
 
@@ -144,7 +146,7 @@ export class Sala extends BaseModel {
     try {
       const { data, error } = await supabase
         .from('lobby_salas')
-        .update({ status: 'finalizada' })
+        .update({ status: 'ENCERRADA' })
         .eq('id_sala', id)
         .select()
         .single();
