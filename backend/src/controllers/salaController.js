@@ -36,11 +36,15 @@ export const salaController = {
   async findAll(req, res, next) {
     try {
       const salas = await salaModel.findAll();
+      console.log('🔍 [SalaController] Total de salas:', salas.length);
+      console.log('🔍 [SalaController] Primeira sala:', salas.length > 0 ? salas[0] : 'Nenhuma');
+      console.log('🔍 [SalaController] Dados completos:', JSON.stringify(salas, null, 2));
       res.status(200).json({
         success: true,
         data: salas
       });
     } catch (error) {
+      console.error('❌ [SalaController] Erro ao buscar salas:', error);
       next(error);
     }
   },
@@ -62,6 +66,7 @@ export const salaController = {
     try {
       const { escolaId } = req.params;
       const salas = await salaModel.findByEscola(escolaId);
+      console.log('🔍 [SalaController] Salas da escola:', salas.length);
       res.status(200).json({
         success: true,
         data: salas
@@ -75,6 +80,7 @@ export const salaController = {
     try {
       const { turmaId } = req.params;
       const salas = await salaModel.findByTurma(turmaId);
+      console.log('🔍 [SalaController] Salas da turma:', salas.length);
       res.status(200).json({
         success: true,
         data: salas
@@ -88,6 +94,7 @@ export const salaController = {
     try {
       const { alunoId } = req.params;
       const salas = await salaModel.findByAluno(alunoId);
+      console.log('🔍 [SalaController] Salas do aluno:', salas.length);
       res.status(200).json({
         success: true,
         data: salas
@@ -100,6 +107,7 @@ export const salaController = {
   async findAtivas(req, res, next) {
     try {
       const salas = await salaModel.findAtivas();
+      console.log('🔍 [SalaController] Salas ativas:', salas.length);
       res.status(200).json({
         success: true,
         data: salas
