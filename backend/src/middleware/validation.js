@@ -189,31 +189,20 @@ export const salaValidation = {
       .isUUID()
       .withMessage('ID da turma inválido'),
     body('idAluno')
-      .optional()
+      .optional({ nullable: true })
       .isUUID()
+      .withMessage('ID do aluno inválido')
+      .custom((value) => value === null || value === undefined || value === '')
       .withMessage('ID do aluno inválido'),
-    body('idTabuada')
-      .optional()
-      .isString()
-      .withMessage('ID da tabuada inválido'),
-    body('tipoTabuada')
-      .optional()
-      .isIn(['padrao', 'personalizada'])
-      .withMessage('Tipo de tabuada inválido'),
     body('tabuada')
-      .optional()
       .isObject()
-      .withMessage('Tabuada inválida'),
+      .withMessage('Tabuada é obrigatória'),
     body('modo')
       .isIn(['RANQUEADO', 'TREINAMENTO'])
       .withMessage('Modo inválido. Deve ser RANQUEADO ou TREINAMENTO'),
     body('dataHora')
       .isISO8601()
       .withMessage('Data e hora inválidas'),
-    body('visibilidade')
-      .optional()
-      .isIn(['turma', 'aluno'])
-      .withMessage('Visibilidade inválida. Deve ser turma ou aluno'),
   ],
   update: [
     param('id')
@@ -233,17 +222,11 @@ export const salaValidation = {
       .isUUID()
       .withMessage('ID da turma inválido'),
     body('idAluno')
-      .optional()
+      .optional({ nullable: true })
       .isUUID()
+      .withMessage('ID do aluno inválido')
+      .custom((value) => value === null || value === undefined || value === '')
       .withMessage('ID do aluno inválido'),
-    body('idTabuada')
-      .optional()
-      .isString()
-      .withMessage('ID da tabuada inválido'),
-    body('tipoTabuada')
-      .optional()
-      .isIn(['padrao', 'personalizada'])
-      .withMessage('Tipo de tabuada inválido'),
     body('tabuada')
       .optional()
       .isObject()
@@ -260,10 +243,6 @@ export const salaValidation = {
       .optional()
       .isIn(['AGENDADA', 'ABERTA', 'ENCERRADA', 'CANCELADA'])
       .withMessage('Status inválido. Deve ser AGENDADA, ABERTA, ENCERRADA ou CANCELADA'),
-    body('visibilidade')
-      .optional()
-      .isIn(['turma', 'aluno'])
-      .withMessage('Visibilidade inválida. Deve ser turma ou aluno'),
   ]
 };
 
