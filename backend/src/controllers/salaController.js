@@ -1,6 +1,8 @@
 import { Sala } from '../models/Sala.js';
+import { Atividade } from '../models/Atividade.js';
 
 const salaModel = new Sala();
+const atividadeModel = new Atividade();
 
 export const salaController = {
   async create(req, res, next) {
@@ -24,9 +26,17 @@ export const salaController = {
         dataHora
       });
 
+      const atividade = await atividadeModel.create({
+        salaId: sala.id_sala,
+        atividade: tabuada
+      });
+
       res.status(201).json({
         success: true,
-        data: sala
+        data: {
+          sala: sala,
+          atividade: atividade
+        }
       });
     } catch (error) {
       next(error);
