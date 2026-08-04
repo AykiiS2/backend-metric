@@ -200,8 +200,11 @@ export const salaValidation = {
       .optional()
       .isIn(['padrao', 'personalizada'])
       .withMessage('Tipo de tabuada inválido'),
-    body('modo')
+    body('tabuada')
       .optional()
+      .isObject()
+      .withMessage('Tabuada inválida'),
+    body('modo')
       .isIn(['RANQUEADO', 'TREINAMENTO'])
       .withMessage('Modo inválido. Deve ser RANQUEADO ou TREINAMENTO'),
     body('dataHora')
@@ -241,6 +244,10 @@ export const salaValidation = {
       .optional()
       .isIn(['padrao', 'personalizada'])
       .withMessage('Tipo de tabuada inválido'),
+    body('tabuada')
+      .optional()
+      .isObject()
+      .withMessage('Tabuada inválida'),
     body('modo')
       .optional()
       .isIn(['RANQUEADO', 'TREINAMENTO'])
