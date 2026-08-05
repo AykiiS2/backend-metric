@@ -9,6 +9,10 @@ export const salaController = {
     try {
       const { nomeSala, idEscola, idTurma, idAluno, tabuada, dificuldade, modo, dataHora } = req.body;
 
+      console.log('🔍 [salaController.create] Iniciando criação');
+      console.log('🔍 [salaController.create] nomeSala:', nomeSala);
+      console.log('🔍 [salaController.create] tabuada tem operacoes?', tabuada.operacoes ? tabuada.operacoes.length : 0);
+
       if (!nomeSala || !idEscola || !idTurma || !tabuada || !dificuldade || !modo || !dataHora) {
         return res.status(400).json({
           success: false,
@@ -16,6 +20,7 @@ export const salaController = {
         });
       }
 
+      console.log('🔍 [salaController.create] Criando sala...');
       const sala = await salaModel.create({
         nomeSala,
         idEscola,
@@ -26,6 +31,9 @@ export const salaController = {
         dataHora
       });
 
+      console.log('✅ [salaController.create] Sala criada ID:', sala.id_sala);
+
+      console.log('🔍 [salaController.create] Salvando atividade...');
       const { data: atividade, error } = await supabase
         .from('lobby_atividades')
         .insert({
@@ -36,8 +44,11 @@ export const salaController = {
         .single();
 
       if (error) {
+        console.error('❌ [salaController.create] Erro ao salvar atividade:', error);
         throw new AppError(`Erro ao salvar atividade: ${error.message}`, 500);
       }
+
+      console.log('✅ [salaController.create] Atividade salva ID:', atividade.id);
 
       res.status(201).json({
         success: true,
@@ -47,6 +58,7 @@ export const salaController = {
         }
       });
     } catch (error) {
+      console.error('❌ [salaController.create] Erro capturado:', error);
       next(error);
     }
   },
