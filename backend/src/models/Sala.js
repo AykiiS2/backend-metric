@@ -1,10 +1,9 @@
-import { BaseModel } from './BaseModel.js';
 import { supabase } from '../config/supabase.js';
 import { AppError } from '../utils/errors.js';
 
-export class Sala extends BaseModel {
+export class Sala {
   constructor() {
-    super('lobby_salas');
+    this.tableName = 'lobby_salas';
   }
 
   async create(data) {
