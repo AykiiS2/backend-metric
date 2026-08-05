@@ -1,6 +1,8 @@
-import { Sala } from '../models/Sala.js';
+import { LobbySala } from '../models/LobbySala.js';
+import { supabase } from '../config/supabase.js';
+import { AppError } from '../utils/errors.js';
 
-const salaModel = new Sala();
+const salaModel = new LobbySala();
 
 export const salaController = {
   async create(req, res, next) {
@@ -19,15 +21,30 @@ export const salaController = {
         idEscola,
         idTurma,
         idAluno: idAluno || null,
-        tabuada,
         dificuldade,
         modo,
         dataHora
       });
 
+      const { data: atividade, error } = await supabase
+        .from('lobby_atividades')
+        .insert({
+          sala_id: sala.id_sala,
+          atividade: tabuada
+        })
+        .select()
+        .single();
+
+      if (error) {
+        throw new AppError(`Erro ao salvar atividade: ${error.message}`, 500);
+      }
+
       res.status(201).json({
         success: true,
-        data: sala
+        data: {
+          sala: sala,
+          atividade: atividade
+        }
       });
     } catch (error) {
       next(error);
@@ -100,7 +117,7 @@ export const salaController = {
 
   async findAtivas(req, res, next) {
     try {
-      const salas = await salaModel.findAtivas();
+      const salas = await salaModel.getSalasAtivas();
       res.status(200).json({
         success: true,
         data: salas
@@ -114,7 +131,7 @@ export const salaController = {
     try {
       const { id } = req.params;
       const updateData = req.body;
-      const sala = await salaModel.update(id, updateData);
+      const sala = await salaModel.updateStatus(id, updateData.status);
       res.status(200).json({
         success: true,
         data: sala
