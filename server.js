@@ -56,7 +56,6 @@ app.use('/api/alunos', alunoRoutes);
 app.use('/api/rankings', rankingRoutes);
 app.use('/api/lobby', lobbyRoutes);
 app.use('/api/salas', salaRoutes);
-app.use('/api/rankings', rankingRoutes);
 
 app.get('/api/health', (req, res) => {
   res.json({ 
