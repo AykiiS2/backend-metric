@@ -21,15 +21,16 @@ export class LobbySala extends BaseModel {
       const codigo = this.generateAccessCode();
 
       const data = {
-        nome: salaData.nomeSala,
+        nome_sala: salaData.nomeSala,
         escola_id: salaData.idEscola,
         turma_id: salaData.idTurma,
         aluno_id: salaData.idAluno || null,
-        codigo_acesso: codigo,
+        tabuada: salaData.tabuada,
+        dificuldade: salaData.dificuldade || 'Médio',
         modo: salaData.modo || 'TREINAMENTO',
         status: 'AGENDADA',
         inicio: salaData.dataHora,
-        fim: salaData.fim || null,
+        codigo_acesso: codigo
       };
 
       const { data: result, error } = await supabase
