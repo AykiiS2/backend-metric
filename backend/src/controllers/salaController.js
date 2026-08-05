@@ -5,12 +5,12 @@ const salaModel = new Sala();
 export const salaController = {
   async create(req, res, next) {
     try {
-      const { nomeSala, idEscola, idTurma, idAluno, tabuada, modo, dataHora } = req.body;
+      const { nomeSala, idEscola, idTurma, idAluno, tabuada, dificuldade, modo, dataHora } = req.body;
 
-      if (!nomeSala || !idEscola || !idTurma || !tabuada || !modo || !dataHora) {
+      if (!nomeSala || !idEscola || !idTurma || !tabuada || !dificuldade || !modo || !dataHora) {
         return res.status(400).json({
           success: false,
-          message: 'Nome, escola, turma, tabuada, modo e data/hora são obrigatórios'
+          message: 'Nome, escola, turma, tabuada, dificuldade, modo e data/hora são obrigatórios'
         });
       }
 
@@ -20,6 +20,7 @@ export const salaController = {
         idTurma,
         idAluno: idAluno || null,
         tabuada,
+        dificuldade,
         modo,
         dataHora
       });
