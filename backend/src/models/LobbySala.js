@@ -25,7 +25,6 @@ export class LobbySala extends BaseModel {
         escola_id: salaData.idEscola,
         turma_id: salaData.idTurma,
         aluno_id: salaData.idAluno || null,
-        tabuada: salaData.tabuada,
         dificuldade: salaData.dificuldade || 'Médio',
         modo: salaData.modo || 'TREINAMENTO',
         status: 'AGENDADA',
