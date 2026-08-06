@@ -1,17 +1,13 @@
-import { LobbySala } from '../models/LobbySala.js';
+import { Sala } from '../models/Sala.js';
 import { supabase } from '../config/supabase.js';
 import { AppError } from '../utils/errors.js';
 
-const salaModel = new LobbySala();
+const salaModel = new Sala();
 
 export const salaController = {
   async create(req, res, next) {
     try {
       const { nomeSala, idEscola, idTurma, idAluno, tabuada, dificuldade, modo, dataHora } = req.body;
-
-      console.log('🔍 [salaController.create] Iniciando criação');
-      console.log('🔍 [salaController.create] nomeSala:', nomeSala);
-      console.log('🔍 [salaController.create] tabuada tem operacoes?', tabuada.operacoes ? tabuada.operacoes.length : 0);
 
       if (!nomeSala || !idEscola || !idTurma || !tabuada || !dificuldade || !modo || !dataHora) {
         return res.status(400).json({
@@ -20,7 +16,13 @@ export const salaController = {
         });
       }
 
-      console.log('🔍 [salaController.create] Criando sala...');
+      if (!tabuada.operacoes || tabuada.operacoes.length === 0) {
+        return res.status(400).json({
+          success: false,
+          message: 'Tabuada precisa ter pelo menos uma operação'
+        });
+      }
+
       const sala = await salaModel.create({
         nomeSala,
         idEscola,
@@ -31,24 +33,24 @@ export const salaController = {
         dataHora
       });
 
-      console.log('✅ [salaController.create] Sala criada ID:', sala.id_sala);
+      const atividadeData = { ...tabuada };
+      delete atividadeData.id;
+      delete atividadeData.created_at;
+      delete atividadeData.aluno_id;
 
-      console.log('🔍 [salaController.create] Salvando atividade...');
       const { data: atividade, error } = await supabase
         .from('lobby_atividades')
         .insert({
           sala_id: sala.id_sala,
-          atividade: tabuada
+          atividade: atividadeData
         })
         .select()
         .single();
 
       if (error) {
-        console.error('❌ [salaController.create] Erro ao salvar atividade:', error);
+        await supabase.from('lobby_salas').delete().eq('id_sala', sala.id_sala);
         throw new AppError(`Erro ao salvar atividade: ${error.message}`, 500);
       }
-
-      console.log('✅ [salaController.create] Atividade salva ID:', atividade.id);
 
       res.status(201).json({
         success: true,
@@ -58,14 +60,13 @@ export const salaController = {
         }
       });
     } catch (error) {
-      console.error('❌ [salaController.create] Erro capturado:', error);
       next(error);
     }
   },
 
   async findAll(req, res, next) {
     try {
-      const salas = await salaModel.findAll();
+      const salas = await salaModel.findAllWithAtividades();
       res.status(200).json({
         success: true,
         data: salas
@@ -78,7 +79,7 @@ export const salaController = {
   async findById(req, res, next) {
     try {
       const { id } = req.params;
-      const sala = await salaModel.findById(id);
+      const sala = await salaModel.findByIdWithAtividades(id);
       res.status(200).json({
         success: true,
         data: sala
@@ -129,7 +130,7 @@ export const salaController = {
 
   async findAtivas(req, res, next) {
     try {
-      const salas = await salaModel.getSalasAtivas();
+      const salas = await salaModel.findAtivas();
       res.status(200).json({
         success: true,
         data: salas
@@ -143,7 +144,7 @@ export const salaController = {
     try {
       const { id } = req.params;
       const updateData = req.body;
-      const sala = await salaModel.updateStatus(id, updateData.status);
+      const sala = await salaModel.update(id, updateData);
       res.status(200).json({
         success: true,
         data: sala
@@ -162,7 +163,6 @@ export const salaController = {
         message: 'Sala deletada com sucesso'
       });
     } catch (error) {
-      console.error('Erro ao deletar sala:', error);
       next(error);
     }
   },
@@ -177,7 +177,6 @@ export const salaController = {
         data: sala
       });
     } catch (error) {
-      console.error('Erro ao finalizar sala:', error);
       next(error);
     }
   }
