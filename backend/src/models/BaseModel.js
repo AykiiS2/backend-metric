@@ -1,7 +1,7 @@
 import { supabase } from '../config/supabase.js';
 import { AppError } from '../utils/errors.js';
 
-class BaseModel {
+export class BaseModel {
   constructor(tableName) {
     this.tableName = tableName;
   }
@@ -94,5 +94,3 @@ class BaseModel {
     }
   }
 }
-
-export default BaseModel;
