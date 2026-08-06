@@ -1,4 +1,4 @@
-const BaseModel = require('./BaseModel');
+import BaseModel from './BaseModel.js';
 
 class Tabuada extends BaseModel {
   constructor() {
@@ -59,4 +59,4 @@ class Tabuada extends BaseModel {
   }
 }
 
-module.exports = Tabuada;
+export default Tabuada;
