@@ -12,6 +12,7 @@ import alunoRoutes from './backend/src/routes/alunoRoutes.js';
 import rankingRoutes from './backend/src/routes/rankingRoutes.js';
 import lobbyRoutes from './backend/src/routes/lobbyRoutes.js';
 import salaRoutes from './backend/src/routes/salaRoutes.js';
+import tabuadaRoutes from './backend/src/routes/tabuadaRoutes.js';
 import { errorHandler } from './backend/src/utils/errors.js';
 
 const app = express();
@@ -56,6 +57,7 @@ app.use('/api/alunos', alunoRoutes);
 app.use('/api/rankings', rankingRoutes);
 app.use('/api/lobby', lobbyRoutes);
 app.use('/api/salas', salaRoutes);
+app.use('/api/tabuadas', tabuadaRoutes);
 
 app.get('/api/health', (req, res) => {
   res.json({ 
