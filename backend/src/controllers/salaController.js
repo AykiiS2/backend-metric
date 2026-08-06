@@ -7,18 +7,35 @@ const salaModel = new LobbySala();
 export const salaController = {
   async create(req, res, next) {
     try {
-      const { nomeSala, idEscola, idTurma, idAluno, tabuada, dificuldade, modo, dataHora } = req.body;
+      const { nomeSala, idEscola, idTurma, idAluno, idTabuada, dificuldade, modo, dataHora } = req.body;
 
       console.log('🔍 [salaController.create] Iniciando criação');
       console.log('🔍 [salaController.create] nomeSala:', nomeSala);
-      console.log('🔍 [salaController.create] tabuada tem operacoes?', tabuada.operacoes ? tabuada.operacoes.length : 0);
+      console.log('🔍 [salaController.create] idTabuada:', idTabuada);
 
-      if (!nomeSala || !idEscola || !idTurma || !tabuada || !dificuldade || !modo || !dataHora) {
+      if (!nomeSala || !idEscola || !idTurma || !idTabuada || !dificuldade || !modo || !dataHora) {
         return res.status(400).json({
           success: false,
           message: 'Nome, escola, turma, tabuada, dificuldade, modo e data/hora são obrigatórios'
         });
       }
+
+      console.log('🔍 [salaController.create] Buscando tabuada da tabela tabuadas...');
+      const { data: tabuadaData, error: tabuadaError } = await supabase
+        .from('tabuadas')
+        .select('*')
+        .eq('id_tabuada', idTabuada)
+        .single();
+
+      if (tabuadaError || !tabuadaData) {
+        console.error('❌ [salaController.create] Erro ao buscar tabuada:', tabuadaError);
+        return res.status(404).json({
+          success: false,
+          message: 'Tabuada não encontrada'
+        });
+      }
+
+      console.log('✅ [salaController.create] Tabuada encontrada:', tabuadaData.titulo);
 
       console.log('🔍 [salaController.create] Criando sala...');
       const sala = await salaModel.create({
@@ -31,21 +48,14 @@ export const salaController = {
         dataHora
       });
 
-      console.log('✅ [salaController.create] Sala criada:', JSON.stringify(sala, null, 2));
-
-      const salaId = sala.id_sala || sala.id;
-      console.log('🔍 [salaController.create] ID da sala para usar:', salaId);
-
-      if (!salaId) {
-        throw new AppError('ID da sala não encontrado após criação', 500);
-      }
+      console.log('✅ [salaController.create] Sala criada ID:', sala.id_sala);
 
       console.log('🔍 [salaController.create] Salvando atividade na lobby_atividades...');
       const { data: atividade, error } = await supabase
         .from('lobby_atividades')
         .insert({
-          sala_id: salaId,
-          atividade: tabuada
+          sala_id: sala.id_sala,
+          atividade: tabuadaData.tabuadas
         })
         .select()
         .single();
