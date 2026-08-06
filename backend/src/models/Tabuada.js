@@ -1,4 +1,4 @@
-import BaseModel from './BaseModel.js';
+import { BaseModel } from './BaseModel.js';
 
 class Tabuada extends BaseModel {
   constructor() {
