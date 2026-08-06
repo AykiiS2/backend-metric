@@ -4,11 +4,12 @@ import { AppError } from '../utils/errors.js';
 export class BaseModel {
   constructor(tableName) {
     this.tableName = tableName;
+    this.supabase = supabase;
   }
 
   async findAll(filters = {}) {
     try {
-      let query = supabase.from(this.tableName).select('*');
+      let query = this.supabase.from(this.tableName).select('*');
       
       Object.keys(filters).forEach(key => {
         if (filters[key] !== undefined && filters[key] !== null) {
@@ -27,7 +28,7 @@ export class BaseModel {
 
   async findById(id) {
     try {
-      const { data, error } = await supabase
+      const { data, error } = await this.supabase
         .from(this.tableName)
         .select('*')
         .eq('id', id)
@@ -44,7 +45,7 @@ export class BaseModel {
 
   async create(data) {
     try {
-      const { data: result, error } = await supabase
+      const { data: result, error } = await this.supabase
         .from(this.tableName)
         .insert(data)
         .select()
@@ -59,7 +60,7 @@ export class BaseModel {
 
   async update(id, data) {
     try {
-      const { data: result, error } = await supabase
+      const { data: result, error } = await this.supabase
         .from(this.tableName)
         .update(data)
         .eq('id', id)
@@ -77,7 +78,7 @@ export class BaseModel {
 
   async delete(id) {
     try {
-      const { data, error } = await supabase
+      const { data, error } = await this.supabase
         .from(this.tableName)
         .delete()
         .eq('id', id)
