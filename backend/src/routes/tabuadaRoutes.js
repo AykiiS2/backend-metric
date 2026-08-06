@@ -1,12 +1,13 @@
-const express = require('express');
+import express from 'express';
+import { salvarTabuada, listarTabuadas, buscarTabuadaPorId, atualizarTabuada, deletarTabuada } from '../controllers/tabuadaController.js';
+import auth from '../middleware/auth.js';
+
 const router = express.Router();
-const tabuadaController = require('../controllers/tabuadaController');
-const auth = require('../middleware/auth');
 
-router.post('/', auth, tabuadaController.salvarTabuada);
-router.get('/', auth, tabuadaController.listarTabuadas);
-router.get('/:id', auth, tabuadaController.buscarTabuadaPorId);
-router.put('/:id', auth, tabuadaController.atualizarTabuada);
-router.delete('/:id', auth, tabuadaController.deletarTabuada);
+router.post('/', auth, salvarTabuada);
+router.get('/', auth, listarTabuadas);
+router.get('/:id', auth, buscarTabuadaPorId);
+router.put('/:id', auth, atualizarTabuada);
+router.delete('/:id', auth, deletarTabuada);
 
-module.exports = router;
+export default router;
