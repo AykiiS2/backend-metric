@@ -31,13 +31,20 @@ export const salaController = {
         dataHora
       });
 
-      console.log('✅ [salaController.create] Sala criada ID:', sala.id_sala);
+      console.log('✅ [salaController.create] Sala criada:', JSON.stringify(sala, null, 2));
 
-      console.log('🔍 [salaController.create] Salvando atividade...');
+      const salaId = sala.id_sala || sala.id;
+      console.log('🔍 [salaController.create] ID da sala para usar:', salaId);
+
+      if (!salaId) {
+        throw new AppError('ID da sala não encontrado após criação', 500);
+      }
+
+      console.log('🔍 [salaController.create] Salvando atividade na lobby_atividades...');
       const { data: atividade, error } = await supabase
         .from('lobby_atividades')
         .insert({
-          sala_id: sala.id_sala,
+          sala_id: salaId,
           atividade: tabuada
         })
         .select()
