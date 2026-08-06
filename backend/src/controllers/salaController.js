@@ -9,7 +9,13 @@ export const salaController = {
     try {
       const { nomeSala, idEscola, idTurma, idAluno, tabuada, dificuldade, modo, dataHora } = req.body;
 
+      console.log('🔍 [CREATE] Iniciando criação');
+      console.log('🔍 [CREATE] nomeSala:', nomeSala);
+      console.log('🔍 [CREATE] tabuada tem operacoes?', tabuada?.operacoes?.length || 0);
+      console.log('🔍 [CREATE] tabuada:', JSON.stringify(tabuada, null, 2));
+
       if (!nomeSala || !idEscola || !idTurma || !tabuada || !dificuldade || !modo || !dataHora) {
+        console.log('❌ [CREATE] Campos obrigatórios faltando');
         return res.status(400).json({
           success: false,
           message: 'Nome, escola, turma, tabuada, dificuldade, modo e data/hora são obrigatórios'
@@ -17,12 +23,14 @@ export const salaController = {
       }
 
       if (!tabuada.operacoes || tabuada.operacoes.length === 0) {
+        console.log('❌ [CREATE] Tabuada sem operações');
         return res.status(400).json({
           success: false,
           message: 'Tabuada precisa ter pelo menos uma operação'
         });
       }
 
+      console.log('✅ [CREATE] Criando sala...');
       const sala = await salaModel.create({
         nomeSala,
         idEscola,
@@ -33,10 +41,15 @@ export const salaController = {
         dataHora
       });
 
+      console.log('✅ [CREATE] Sala criada ID:', sala.id_sala);
+
       const atividadeData = { ...tabuada };
       delete atividadeData.id;
       delete atividadeData.created_at;
       delete atividadeData.aluno_id;
+
+      console.log('✅ [CREATE] Atividade preparada, salvando...');
+      console.log('✅ [CREATE] atividadeData:', JSON.stringify(atividadeData, null, 2));
 
       const { data: atividade, error } = await supabase
         .from('lobby_atividades')
@@ -48,9 +61,16 @@ export const salaController = {
         .single();
 
       if (error) {
+        console.error('❌ [CREATE] Erro ao salvar atividade:', error);
+        console.error('❌ [CREATE] Detalhes do erro:', JSON.stringify(error, null, 2));
         await supabase.from('lobby_salas').delete().eq('id_sala', sala.id_sala);
-        throw new AppError(`Erro ao salvar atividade: ${error.message}`, 500);
+        return res.status(500).json({
+          success: false,
+          message: `Erro ao salvar atividade: ${error.message}`
+        });
       }
+
+      console.log('✅ [CREATE] Atividade salva com sucesso ID:', atividade.id);
 
       res.status(201).json({
         success: true,
@@ -60,6 +80,8 @@ export const salaController = {
         }
       });
     } catch (error) {
+      console.error('❌ [CREATE] Erro capturado:', error);
+      console.error('❌ [CREATE] Stack:', error.stack);
       next(error);
     }
   },
