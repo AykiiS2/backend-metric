@@ -1,13 +1,13 @@
 import express from 'express';
 import { salvarTabuada, listarTabuadas, buscarTabuadaPorId, atualizarTabuada, deletarTabuada } from '../controllers/tabuadaController.js';
-import auth from '../middleware/auth.js';
+import { authenticateToken } from '../middleware/auth.js';
 
 const router = express.Router();
 
-router.post('/', auth, salvarTabuada);
-router.get('/', auth, listarTabuadas);
-router.get('/:id', auth, buscarTabuadaPorId);
-router.put('/:id', auth, atualizarTabuada);
-router.delete('/:id', auth, deletarTabuada);
+router.post('/', authenticateToken, salvarTabuada);
+router.get('/', authenticateToken, listarTabuadas);
+router.get('/:id', authenticateToken, buscarTabuadaPorId);
+router.put('/:id', authenticateToken, atualizarTabuada);
+router.delete('/:id', authenticateToken, deletarTabuada);
 
 export default router;
