@@ -1,8 +1,8 @@
-const Tabuada = require('../models/Tabuada');
+import Tabuada from '../models/Tabuada.js';
 
 const tabuadaModel = new Tabuada();
 
-exports.salvarTabuada = async (req, res) => {
+export const salvarTabuada = async (req, res) => {
   try {
     const { titulo, tabuadas } = req.body;
     
@@ -36,7 +36,7 @@ exports.salvarTabuada = async (req, res) => {
   }
 };
 
-exports.listarTabuadas = async (req, res) => {
+export const listarTabuadas = async (req, res) => {
   try {
     const { data, error } = await tabuadaModel.findAll();
     
@@ -51,7 +51,7 @@ exports.listarTabuadas = async (req, res) => {
   }
 };
 
-exports.buscarTabuadaPorId = async (req, res) => {
+export const buscarTabuadaPorId = async (req, res) => {
   try {
     const { id } = req.params;
     
@@ -82,7 +82,7 @@ exports.buscarTabuadaPorId = async (req, res) => {
   }
 };
 
-exports.deletarTabuada = async (req, res) => {
+export const deletarTabuada = async (req, res) => {
   try {
     const { id } = req.params;
     
@@ -116,7 +116,7 @@ exports.deletarTabuada = async (req, res) => {
   }
 };
 
-exports.atualizarTabuada = async (req, res) => {
+export const atualizarTabuada = async (req, res) => {
   try {
     const { id } = req.params;
     const { titulo, tabuadas } = req.body;
