@@ -8,9 +8,9 @@ export class Sala {
 
   async create(data) {
     try {
-      const { nomeSala, idEscola, idTurma, idAluno, tabuada, dificuldade, modo, dataHora } = data;
+      const { nomeSala, idEscola, idTurma, idAluno, dificuldade, modo, dataHora } = data;
 
-      if (!nomeSala || !idEscola || !idTurma || !tabuada || !dificuldade || !modo || !dataHora) {
+      if (!nomeSala || !idEscola || !idTurma || !dificuldade || !modo || !dataHora) {
         throw new AppError('Todos os campos obrigatórios devem ser preenchidos', 400);
       }
 
@@ -20,7 +20,6 @@ export class Sala {
         nome_sala: nomeSala,
         escola_id: idEscola,
         turma_id: idTurma,
-        tabuada: tabuada,
         dificuldade: dificuldade,
         modo: modo,
         inicio: dataHora,
@@ -64,6 +63,42 @@ export class Sala {
     }
   }
 
+  async findAllWithAtividades() {
+    try {
+      const { data: salas, error: salasError } = await supabase
+        .from('lobby_salas')
+        .select('*')
+        .order('inicio', { ascending: false });
+
+      if (salasError) {
+        throw new AppError(`Erro ao buscar salas: ${salasError.message}`, 400);
+      }
+
+      const salasComAtividades = await Promise.all(
+        (salas || []).map(async (sala) => {
+          const { data: atividades, error: ativError } = await supabase
+            .from('lobby_atividades')
+            .select('*')
+            .eq('sala_id', sala.id_sala);
+
+          if (ativError) {
+            console.error(`Erro ao buscar atividades da sala ${sala.id_sala}:`, ativError);
+            return { ...sala, atividades: [] };
+          }
+
+          return {
+            ...sala,
+            atividades: atividades || []
+          };
+        })
+      );
+
+      return salasComAtividades;
+    } catch (error) {
+      throw error;
+    }
+  }
+
   async findById(id) {
     try {
       const { data, error } = await supabase
@@ -76,6 +111,36 @@ export class Sala {
         throw new AppError('Sala não encontrada', 404);
       }
       return data;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async findByIdWithAtividades(id) {
+    try {
+      const { data: sala, error: salaError } = await supabase
+        .from('lobby_salas')
+        .select('*')
+        .eq('id_sala', id)
+        .single();
+
+      if (salaError) {
+        throw new AppError('Sala não encontrada', 404);
+      }
+
+      const { data: atividades, error: ativError } = await supabase
+        .from('lobby_atividades')
+        .select('*')
+        .eq('sala_id', id);
+
+      if (ativError) {
+        throw new AppError(`Erro ao buscar atividades: ${ativError.message}`, 500);
+      }
+
+      return {
+        ...sala,
+        atividades: atividades || []
+      };
     } catch (error) {
       throw error;
     }
