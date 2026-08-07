@@ -248,6 +248,9 @@ export const salaController = {
       const { alunoId } = req.params;
       const { turmaId } = req.query;
 
+      console.log('🔍 getDisponiveisPorAluno - alunoId:', alunoId);
+      console.log('🔍 getDisponiveisPorAluno - turmaId:', turmaId);
+
       let query = supabase
         .from('lobby_salas')
         .select('*')
@@ -261,13 +264,19 @@ export const salaController = {
 
       const { data, error } = await query;
 
-      if (error) throw error;
+      if (error) {
+        console.error('❌ Erro ao buscar salas:', error);
+        throw error;
+      }
+      
+      console.log(`✅ Salas disponíveis encontradas: ${data?.length || 0}`);
       
       res.status(200).json({
         success: true,
         data: data || []
       });
     } catch (error) {
+      console.error('💥 Erro em getDisponiveisPorAluno:', error);
       next(error);
     }
   },
@@ -276,19 +285,27 @@ export const salaController = {
     try {
       const { id } = req.params;
 
+      console.log('🔍 getAtividade - salaId:', id);
+
       const { data, error } = await supabase
         .from('lobby_atividades')
         .select('*')
         .eq('sala_id', id)
         .single();
 
-      if (error) throw error;
+      if (error) {
+        console.error('❌ Erro ao buscar atividade:', error);
+        throw error;
+      }
+      
+      console.log('✅ Atividade encontrada:', data?.id);
       
       res.status(200).json({
         success: true,
         data: data
       });
     } catch (error) {
+      console.error('💥 Erro em getAtividade:', error);
       next(error);
     }
   },
