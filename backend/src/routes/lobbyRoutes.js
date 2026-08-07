@@ -15,7 +15,9 @@ router.use(authenticateToken);
 router.post('/entrada', validate(logValidation.entrada), async (req, res, next) => {
   try {
     const { id_sala, id_aluno } = req.body;
+    
     const log = await logEntradaModel.registrarEntrada(id_sala, id_aluno);
+    
     res.status(201).json({
       success: true,
       data: log
