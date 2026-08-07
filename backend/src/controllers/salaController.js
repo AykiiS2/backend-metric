@@ -243,6 +243,56 @@ export const salaController = {
     }
   },
 
+  async getDisponiveisPorAluno(req, res, next) {
+    try {
+      const { alunoId } = req.params;
+      const { turmaId } = req.query;
+
+      let query = supabase
+        .from('lobby_salas')
+        .select('*')
+        .in('status', ['AGENDADA', 'ABERTA']);
+
+      if (turmaId && turmaId.length > 0) {
+        query = query.or(`turma_id.eq.${turmaId},aluno_id.eq.${alunoId}`);
+      } else {
+        query = query.eq('aluno_id', alunoId);
+      }
+
+      const { data, error } = await query;
+
+      if (error) throw error;
+      
+      res.status(200).json({
+        success: true,
+        data: data || []
+      });
+    } catch (error) {
+      next(error);
+    }
+  },
+
+  async getAtividade(req, res, next) {
+    try {
+      const { id } = req.params;
+
+      const { data, error } = await supabase
+        .from('lobby_atividades')
+        .select('*')
+        .eq('sala_id', id)
+        .single();
+
+      if (error) throw error;
+      
+      res.status(200).json({
+        success: true,
+        data: data
+      });
+    } catch (error) {
+      next(error);
+    }
+  },
+
   async update(req, res, next) {
     try {
       const { id } = req.params;
