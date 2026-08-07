@@ -18,34 +18,45 @@ export const salaController = {
       addLog(`📅 LOG: ${new Date().toISOString()}`);
       addLog('='.repeat(80));
       
-      const { nomeSala, idEscola, idTurma, idAluno, tabuada, dificuldade, modo, dataHora } = req.body;
+      const { nomeSala, idEscola, idTurma, idAluno, idTabuada, dificuldade, modo, dataHora } = req.body;
 
       addLog('📝 DADOS RECEBIDOS:');
       addLog(`- nomeSala: ${nomeSala}`);
       addLog(`- idEscola: ${idEscola}`);
       addLog(`- idTurma: ${idTurma}`);
       addLog(`- idAluno: ${idAluno || 'null'}`);
+      addLog(`- idTabuada: ${idTabuada}`);
       addLog(`- dificuldade: ${dificuldade}`);
       addLog(`- modo: ${modo}`);
       addLog(`- dataHora: ${dataHora}`);
-      addLog(`- tabuada existe: ${!!tabuada}`);
-      addLog(`- tabuada.tabuadas existe: ${!!tabuada?.tabuadas}`);
-      
-      if (tabuada) {
-        addLog(`- tabuada.id_tabuada: ${tabuada.id_tabuada}`);
-        addLog(`- tabuada.titulo: ${tabuada.titulo}`);
-        addLog(`- tabuada.tipo: ${tabuada.tabuadas?.tipo}`);
-        addLog(`- quantidade operacoes: ${tabuada.tabuadas?.operacoes?.length || 0}`);
-      }
 
-      if (!nomeSala || !idEscola || !idTurma || !tabuada || !dificuldade || !modo || !dataHora) {
+      if (!nomeSala || !idEscola || !idTurma || !idTabuada || !dificuldade || !modo || !dataHora) {
         addLog('❌ ERRO: Campos obrigatórios faltando');
         return res.status(400).json({
           success: false,
-          message: 'Nome, escola, turma, tabuada, dificuldade, modo e data/hora são obrigatórios',
+          message: 'Nome, escola, turma, idTabuada, dificuldade, modo e data/hora são obrigatórios',
           log: log.join('\n')
         });
       }
+
+      addLog('🔍 Buscando tabuada...');
+      const { data: tabuada, error: tabuadaError } = await supabase
+        .from('tabuadas')
+        .select('id_tabuada, titulo, tabuadas')
+        .eq('id_tabuada', idTabuada)
+        .single();
+
+      if (tabuadaError || !tabuada) {
+        addLog('❌ Tabuada não encontrada!');
+        return res.status(404).json({
+          success: false,
+          message: 'Tabuada não encontrada',
+          error: tabuadaError,
+          log: log.join('\n')
+        });
+      }
+
+      addLog(`✅ Tabuada encontrada: ${tabuada.titulo}`);
 
       addLog('🏫 Criando sala...');
       const sala = await salaModel.create({
@@ -70,15 +81,16 @@ export const salaController = {
         });
       }
 
-      const atividadeData = tabuada.tabuadas || tabuada;
+      const atividadeData = {
+        id_tabuada: tabuada.id_tabuada,
+        titulo: tabuada.titulo,
+        tabuadas: tabuada.tabuadas
+      };
 
       addLog(`📦 atividadeData: ${JSON.stringify(atividadeData, null, 2).substring(0, 500)}...`);
 
-      addLog('💾 Tentando salvar na lobby_atividades...');
-      addLog(`- sala_id: ${sala.id_sala}`);
-      addLog(`- atividade: ${JSON.stringify(atividadeData, null, 2).substring(0, 200)}...`);
-
-      const { data: atividade, error } = await supabase
+      addLog('💾 Salvando na lobby_atividades...');
+      const { data: atividade, error: atividadeError } = await supabase
         .from('lobby_atividades')
         .insert({
           sala_id: sala.id_sala,
@@ -87,23 +99,46 @@ export const salaController = {
         .select()
         .single();
 
-      if (error) {
-        addLog('❌ ERRO SUPABASE:');
-        addLog(JSON.stringify(error, null, 2));
-        addLog(`- error.code: ${error.code}`);
-        addLog(`- error.message: ${error.message}`);
-        addLog(`- error.details: ${error.details}`);
-        addLog(`- error.hint: ${error.hint}`);
+      if (atividadeError) {
+        addLog('❌ ERRO SUPABASE ao salvar atividade:');
+        addLog(JSON.stringify(atividadeError, null, 2));
+        
+        addLog('🔄 Fazendo rollback - deletando sala...');
+        await supabase
+          .from('lobby_salas')
+          .delete()
+          .eq('id_sala', sala.id_sala);
         
         return res.status(500).json({
           success: false,
-          message: `Erro ao salvar atividade: ${error.message}`,
-          error: error,
+          message: `Erro ao salvar atividade: ${atividadeError.message}`,
+          error: atividadeError,
           log: log.join('\n')
         });
       }
 
       addLog(`✅ Atividade salva com sucesso! ID: ${atividade.id}`);
+
+      if (idAluno) {
+        addLog('👤 Criando participante para sala individual...');
+        const { data: participante, error: participanteError } = await supabase
+          .from('lobby_participantes')
+          .insert({
+            sala_id: sala.id_sala,
+            aluno_id: idAluno,
+            status: 'AGUARDANDO',
+            entrou_em: new Date().toISOString()
+          })
+          .select()
+          .single();
+
+        if (participanteError) {
+          addLog('⚠️ Erro ao criar participante (não crítico):');
+          addLog(JSON.stringify(participanteError, null, 2));
+        } else {
+          addLog(`✅ Participante criado: ${participante.id}`);
+        }
+      }
 
       res.status(201).json({
         success: true,
