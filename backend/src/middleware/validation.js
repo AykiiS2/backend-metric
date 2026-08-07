@@ -189,14 +189,15 @@ export const salaValidation = {
       .isUUID()
       .withMessage('ID da turma inválido'),
     body('idAluno')
-      .optional({ nullable: true })
+      .optional({ nullable: true, checkFalsy: true })
       .isUUID()
-      .withMessage('ID do aluno inválido')
-      .custom((value) => value === null || value === undefined || value === '')
       .withMessage('ID do aluno inválido'),
-    body('tabuada')
-      .isObject()
-      .withMessage('Tabuada é obrigatória'),
+    body('idTabuada')
+      .isUUID()
+      .withMessage('ID da tabuada inválido'),
+    body('dificuldade')
+      .isIn(['Fácil', 'Médio', 'Difícil'])
+      .withMessage('Dificuldade inválida. Deve ser Fácil, Médio ou Difícil'),
     body('modo')
       .isIn(['RANQUEADO', 'TREINAMENTO'])
       .withMessage('Modo inválido. Deve ser RANQUEADO ou TREINAMENTO'),
@@ -222,15 +223,17 @@ export const salaValidation = {
       .isUUID()
       .withMessage('ID da turma inválido'),
     body('idAluno')
-      .optional({ nullable: true })
+      .optional({ nullable: true, checkFalsy: true })
       .isUUID()
-      .withMessage('ID do aluno inválido')
-      .custom((value) => value === null || value === undefined || value === '')
       .withMessage('ID do aluno inválido'),
-    body('tabuada')
+    body('idTabuada')
       .optional()
-      .isObject()
-      .withMessage('Tabuada inválida'),
+      .isUUID()
+      .withMessage('ID da tabuada inválido'),
+    body('dificuldade')
+      .optional()
+      .isIn(['Fácil', 'Médio', 'Difícil'])
+      .withMessage('Dificuldade inválida. Deve ser Fácil, Médio ou Difícil'),
     body('modo')
       .optional()
       .isIn(['RANQUEADO', 'TREINAMENTO'])
