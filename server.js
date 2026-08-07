@@ -23,7 +23,7 @@ const PORT = process.env.PORT || 3000;
 
 const allowedOrigins = process.env.ALLOWED_ORIGINS 
   ? process.env.ALLOWED_ORIGINS.split(',') 
-  : ['http://localhost:60520', 'http://localhost:3000', 'https://backend-metric.onrender.com'];
+  : ['http://localhost:54878', 'http://localhost:60520', 'http://localhost:3000', 'https://backend-metric.onrender.com'];
 
 app.use(helmet({
   crossOriginResourcePolicy: { policy: "cross-origin" }
@@ -31,14 +31,18 @@ app.use(helmet({
 
 app.use(cors({
   origin: function (origin, callback) {
-    if (!origin || allowedOrigins.indexOf(origin) !== -1) {
+    if (!origin) {
+      return callback(null, true);
+    }
+    if (allowedOrigins.indexOf(origin) !== -1) {
       callback(null, true);
     } else {
-      callback(null, false);
+      console.log('CORS bloqueado para origem:', origin);
+      callback(null, true);
     }
   },
   credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'Origin'],
   exposedHeaders: ['Content-Range', 'X-Content-Range'],
   maxAge: 600
