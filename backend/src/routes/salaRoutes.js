@@ -17,6 +17,7 @@ router.get('/aluno/:alunoId', salaController.findByAluno);
 router.get('/:id', salaController.findById);
 router.get('/:id/atividade', salaController.getAtividade);
 router.put('/:id', salaController.update);
+router.put('/:id/abrir', salaController.abrir);
 router.put('/:id/finalizar', salaController.finalizar);
 router.delete('/:id', salaController.delete);
 
