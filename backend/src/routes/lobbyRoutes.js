@@ -14,23 +14,35 @@ router.use(authenticateToken);
 
 router.post('/entrada', validate(logValidation.entrada), async (req, res, next) => {
   try {
-    const { id_sala, id_aluno } = req.body;
+    const { sala_id, aluno_id } = req.body;
     
-    const log = await logEntradaModel.registrarEntrada(id_sala, id_aluno);
+    console.log('🔍 [Lobby] Entrada na sala:');
+    console.log('  - sala_id:', sala_id);
+    console.log('  - aluno_id:', aluno_id);
+    
+    if (!sala_id || !aluno_id) {
+      return res.status(400).json({
+        success: false,
+        message: 'sala_id e aluno_id são obrigatórios'
+      });
+    }
+    
+    const log = await logEntradaModel.registrarEntrada(sala_id, aluno_id);
     
     res.status(201).json({
       success: true,
       data: log
     });
   } catch (error) {
+    console.error('❌ [Lobby] Erro:', error);
     next(error);
   }
 });
 
 router.post('/saida', validate(logValidation.entrada), async (req, res, next) => {
   try {
-    const { id_sala, id_aluno } = req.body;
-    const log = await logEntradaModel.registrarSaida(id_sala, id_aluno);
+    const { sala_id, aluno_id } = req.body;
+    const log = await logEntradaModel.registrarSaida(sala_id, aluno_id);
     res.status(200).json({
       success: true,
       data: log
