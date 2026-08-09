@@ -310,16 +310,43 @@ export const salaController = {
     }
   },
 
+  async abrir(req, res, next) {
+    try {
+      const { id } = req.params;
+      
+      console.log('🔍 Abrindo sala:', id);
+      
+      const sala = await salaModel.updateStatus(id, 'ABERTA');
+      
+      console.log('✅ Sala aberta com sucesso:', sala);
+      
+      res.status(200).json({
+        success: true,
+        message: 'Sala aberta com sucesso',
+        data: sala
+      });
+    } catch (error) {
+      console.error('💥 Erro ao abrir sala:', error);
+      next(error);
+    }
+  },
+
   async update(req, res, next) {
     try {
       const { id } = req.params;
       const updateData = req.body;
-      const sala = await salaModel.updateStatus(id, updateData.status);
+      
+      console.log('🔍 Atualizando sala:', id);
+      console.log('📝 Dados:', updateData);
+      
+      const sala = await salaModel.update(id, updateData);
+      
       res.status(200).json({
         success: true,
         data: sala
       });
     } catch (error) {
+      console.error('💥 Erro ao atualizar sala:', error);
       next(error);
     }
   },
@@ -327,13 +354,34 @@ export const salaController = {
   async delete(req, res, next) {
     try {
       const { id } = req.params;
+      
+      console.log('🔍 Deletando sala:', id);
+      console.log('🗑️ Removendo participantes...');
+      
+      await supabase
+        .from('lobby_participantes')
+        .delete()
+        .eq('sala_id', id);
+      
+      console.log('🗑️ Removendo atividades...');
+      
+      await supabase
+        .from('lobby_atividades')
+        .delete()
+        .eq('sala_id', id);
+      
+      console.log('🗑️ Removendo sala...');
+      
       await salaModel.delete(id);
+      
+      console.log('✅ Sala deletada com sucesso');
+      
       res.status(200).json({
         success: true,
         message: 'Sala deletada com sucesso'
       });
     } catch (error) {
-      console.error('Erro ao deletar sala:', error);
+      console.error('💥 Erro ao deletar sala:', error);
       next(error);
     }
   },
@@ -341,14 +389,20 @@ export const salaController = {
   async finalizar(req, res, next) {
     try {
       const { id } = req.params;
-      const sala = await salaModel.finalizar(id);
+      
+      console.log('🔍 Encerrando sala:', id);
+      
+      const sala = await salaModel.updateStatus(id, 'ENCERRADA');
+      
+      console.log('✅ Sala encerrada com sucesso:', sala);
+      
       res.status(200).json({
         success: true,
-        message: 'Sala finalizada com sucesso',
+        message: 'Sala encerrada com sucesso',
         data: sala
       });
     } catch (error) {
-      console.error('Erro ao finalizar sala:', error);
+      console.error('💥 Erro ao encerrar sala:', error);
       next(error);
     }
   }
