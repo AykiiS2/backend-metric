@@ -3,7 +3,6 @@ import { LobbySala } from '../models/LobbySala.js';
 import { LogEntrada } from '../models/LogEntrada.js';
 import { LogResultado } from '../models/LogResultado.js';
 import { authenticateToken } from '../middleware/auth.js';
-import { validate, logValidation } from '../middleware/validation.js';
 
 const router = express.Router();
 const salaModel = new LobbySala();
@@ -12,18 +11,26 @@ const logResultadoModel = new LogResultado();
 
 router.use(authenticateToken);
 
-router.post('/entrada', validate(logValidation.entrada), async (req, res, next) => {
+router.post('/entrada', async (req, res, next) => {
   try {
     const { sala_id, aluno_id } = req.body;
     
     console.log('🔍 [Lobby] Entrada na sala:');
+    console.log('  - body:', req.body);
     console.log('  - sala_id:', sala_id);
     console.log('  - aluno_id:', aluno_id);
     
-    if (!sala_id || !aluno_id) {
+    if (!sala_id) {
       return res.status(400).json({
         success: false,
-        message: 'sala_id e aluno_id são obrigatórios'
+        message: 'sala_id é obrigatório'
+      });
+    }
+    
+    if (!aluno_id) {
+      return res.status(400).json({
+        success: false,
+        message: 'aluno_id é obrigatório'
       });
     }
     
@@ -35,11 +42,14 @@ router.post('/entrada', validate(logValidation.entrada), async (req, res, next) 
     });
   } catch (error) {
     console.error('❌ [Lobby] Erro:', error);
-    next(error);
+    res.status(400).json({
+      success: false,
+      message: error.message || 'Erro ao registrar entrada'
+    });
   }
 });
 
-router.post('/saida', validate(logValidation.entrada), async (req, res, next) => {
+router.post('/saida', async (req, res, next) => {
   try {
     const { sala_id, aluno_id } = req.body;
     const log = await logEntradaModel.registrarSaida(sala_id, aluno_id);
@@ -91,7 +101,7 @@ router.get('/entrada/sala/:salaId/estatisticas', async (req, res, next) => {
   }
 });
 
-router.post('/resultados', validate(logValidation.resultado), async (req, res, next) => {
+router.post('/resultados', async (req, res, next) => {
   try {
     const resultado = await logResultadoModel.create(req.body);
     res.status(201).json({
