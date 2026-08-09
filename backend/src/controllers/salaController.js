@@ -310,6 +310,35 @@ export const salaController = {
     }
   },
 
+  async getStatus(req, res, next) {
+    try {
+      const { id } = req.params;
+
+      console.log('🔍 getStatus - salaId:', id);
+
+      const { data, error } = await supabase
+        .from('lobby_salas')
+        .select('status')
+        .eq('id_sala', id)
+        .single();
+
+      if (error) {
+        console.error('❌ Erro ao buscar status:', error);
+        throw error;
+      }
+      
+      console.log('✅ Status encontrado:', data?.status);
+      
+      res.status(200).json({
+        success: true,
+        status: data?.status || 'AGENDADA'
+      });
+    } catch (error) {
+      console.error('💥 Erro em getStatus:', error);
+      next(error);
+    }
+  },
+
   async abrir(req, res, next) {
     try {
       const { id } = req.params;
