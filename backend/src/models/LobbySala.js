@@ -29,6 +29,7 @@ export class LobbySala extends BaseModel {
         modo: salaData.modo || 'TREINAMENTO',
         status: 'AGENDADA',
         inicio: salaData.dataHora,
+        horario_abertura: salaData.dataHora,
         codigo_acesso: codigo
       };
 
