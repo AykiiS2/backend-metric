@@ -349,6 +349,13 @@ export const salaController = {
       
       console.log('✅ Sala aberta com sucesso:', sala);
       
+      await supabase
+        .from('lobby_participantes')
+        .update({ status: 'FAZENDO' })
+        .eq('sala_id', id);
+      
+      console.log('✅ Participantes atualizados para FAZENDO');
+      
       res.status(200).json({
         success: true,
         message: 'Sala aberta com sucesso',
