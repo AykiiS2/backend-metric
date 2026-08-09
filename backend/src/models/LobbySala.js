@@ -150,6 +150,26 @@ export class LobbySala extends BaseModel {
     }
   }
 
+  async update(id, updateData) {
+    try {
+      const { data, error } = await supabase
+        .from('lobby_salas')
+        .update({
+          nome_sala: updateData.nomeSala,
+          dificuldade: updateData.dificuldade,
+          modo: updateData.modo,
+        })
+        .eq('id_sala', id)
+        .select()
+        .single();
+
+      if (error) throw error;
+      return data;
+    } catch (error) {
+      throw new AppError(`Erro ao atualizar sala: ${error.message}`, 400);
+    }
+  }
+
   async updateStatus(id, status) {
     try {
       const { data, error } = await supabase
