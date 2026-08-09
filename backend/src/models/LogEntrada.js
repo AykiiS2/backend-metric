@@ -14,7 +14,7 @@ export class LogEntrada extends BaseModel {
         .insert({
           sala_id: salaId,
           aluno_id: alunoId,
-          status: 'FAZENDO',
+          status: 'AGUARDANDO',
           entrou_em: new Date().toISOString(),
         })
         .select()
@@ -56,7 +56,7 @@ export class LogEntrada extends BaseModel {
           alunos (id_aluno, nome_aluno, rm)
         `)
         .eq('sala_id', salaId)
-        .eq('status', 'FAZENDO');
+        .in('status', ['AGUARDANDO', 'FAZENDO']);
 
       if (error) throw error;
       return data || [];
@@ -92,8 +92,9 @@ export class LogEntrada extends BaseModel {
       const total = data?.length || 0;
       const finalizados = data?.filter(p => p.status === 'FINALIZOU').length || 0;
       const emAndamento = data?.filter(p => p.status === 'FAZENDO').length || 0;
+      const aguardando = data?.filter(p => p.status === 'AGUARDANDO').length || 0;
       
-      return { total, finalizados, emAndamento };
+      return { total, finalizados, emAndamento, aguardando };
     } catch (error) {
       throw new AppError(`Erro ao buscar estatísticas: ${error.message}`, 400);
     }
