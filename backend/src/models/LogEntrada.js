@@ -9,6 +9,37 @@ export class LogEntrada extends BaseModel {
 
   async registrarEntrada(salaId, alunoId) {
     try {
+      console.log('🔍 [LogEntrada] registrarEntrada:');
+      console.log('  - salaId:', salaId);
+      console.log('  - alunoId:', alunoId);
+
+      const { data: existing, error: checkError } = await supabase
+        .from('lobby_participantes')
+        .select('*')
+        .eq('sala_id', salaId)
+        .eq('aluno_id', alunoId)
+        .maybeSingle();
+
+      console.log('🔍 [LogEntrada] Registro existente:', existing);
+
+      if (existing) {
+        console.log('🔍 [LogEntrada] Atualizando registro existente');
+        const { data, error } = await supabase
+          .from('lobby_participantes')
+          .update({
+            status: 'AGUARDANDO',
+            entrou_em: new Date().toISOString(),
+          })
+          .eq('sala_id', salaId)
+          .eq('aluno_id', alunoId)
+          .select()
+          .single();
+
+        if (error) throw error;
+        return data;
+      }
+
+      console.log('🔍 [LogEntrada] Criando novo registro');
       const { data, error } = await supabase
         .from('lobby_participantes')
         .insert({
@@ -23,6 +54,7 @@ export class LogEntrada extends BaseModel {
       if (error) throw error;
       return data;
     } catch (error) {
+      console.error('❌ [LogEntrada] Erro:', error);
       throw new AppError(`Erro ao registrar entrada: ${error.message}`, 400);
     }
   }
