@@ -251,10 +251,10 @@ export const salaValidation = {
 
 export const logValidation = {
   entrada: [
-    body('id_sala')
+    body('sala_id')
       .isUUID()
       .withMessage('ID da sala inválido'),
-    body('id_aluno')
+    body('aluno_id')
       .isUUID()
       .withMessage('ID do aluno inválido')
   ],
