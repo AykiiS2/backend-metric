@@ -21,14 +21,18 @@ export const authenticateToken = async (req, res, next) => {
 
       req.user = {
         id: decoded.id,
-        email: decoded.email,
+        email: decoded.email || null,
+        rm: decoded.rm || null,
         role: decoded.role
       };
       req.userId = decoded.id;
       
       next();
     } catch (jwtError) {
-      throw new AppError('Token inválido ou expirado', 401);
+      if (jwtError.name === 'TokenExpiredError') {
+        throw new AppError('Token expirado', 401);
+      }
+      throw new AppError('Token inválido', 401);
     }
   } catch (error) {
     next(error);
@@ -138,4 +142,38 @@ export const requireRole = (roles) => {
       next(error);
     }
   };
+};
+
+export const isProfessor = (req, res, next) => {
+  if (!req.user || req.user.role !== 'professor') {
+    throw new AppError('Acesso restrito a professores', 403);
+  }
+  next();
+};
+
+export const isAluno = (req, res, next) => {
+  if (!req.user || req.user.role !== 'aluno') {
+    throw new AppError('Acesso restrito a alunos', 403);
+  }
+  next();
+};
+
+export const isOwnProfile = (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const userId = req.user.id;
+    const userRole = req.user.role;
+    
+    if (userRole === 'professor') {
+      return next();
+    }
+    
+    if (String(id) !== String(userId)) {
+      throw new AppError('Você só pode acessar seu próprio perfil', 403);
+    }
+    
+    next();
+  } catch (error) {
+    next(error);
+  }
 };
