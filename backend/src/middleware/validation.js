@@ -18,6 +18,13 @@ export const validate = (validations) => {
   };
 };
 
+export const idValidation = [
+  param('id')
+    .isInt()
+    .withMessage('ID inválido')
+    .toInt()
+];
+
 export const loginValidation = [
   body('email')
     .isEmail()
@@ -146,8 +153,9 @@ export const alunoValidation = {
   ],
   update: [
     param('id')
-      .isUUID()
-      .withMessage('ID do aluno inválido'),
+      .isInt()
+      .withMessage('ID do aluno inválido')
+      .toInt(),
     body('rm')
       .optional()
       .isString()
@@ -171,6 +179,15 @@ export const alunoValidation = {
       .optional()
       .isUUID()
       .withMessage('ID da turma inválido')
+  ],
+  updatePassword: [
+    param('id')
+      .isInt()
+      .withMessage('ID do aluno inválido')
+      .toInt(),
+    body('senha')
+      .isLength({ min: 6 })
+      .withMessage('Senha deve ter no mínimo 6 caracteres')
   ]
 };
 
