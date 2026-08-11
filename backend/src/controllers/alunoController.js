@@ -46,13 +46,23 @@ export const alunoController = {
         { expiresIn: '7d' }
       );
 
+      const refreshToken = jwt.sign(
+        {
+          id: aluno.id_aluno,
+          role: 'aluno'
+        },
+        process.env.JWT_SECRET,
+        { expiresIn: '30d' }
+      );
+
       const { senha: _, ...alunoSemSenha } = aluno;
 
       res.status(200).json({
         success: true,
         message: 'Login realizado com sucesso',
         data: alunoSemSenha,
-        token: token
+        token: token,
+        refreshToken: refreshToken
       });
     } catch (error) {
       next(error);
