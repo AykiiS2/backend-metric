@@ -52,11 +52,20 @@ export const authController = {
         { expiresIn: '7d' }
       );
 
+      const refreshToken = jwt.sign(
+        {
+          id: user.id,
+          role: 'professor'
+        },
+        process.env.JWT_SECRET,
+        { expiresIn: '30d' }
+      );
+
       res.json({
         success: true,
         data: {
           token: token,
-          refreshToken: null,
+          refreshToken: refreshToken,
           user: {
             id: user.id,
             nome: user.email?.split('@')[0] || user.email,
@@ -89,11 +98,20 @@ export const authController = {
         { expiresIn: '7d' }
       );
 
+      const refreshToken = jwt.sign(
+        {
+          id: aluno.id,
+          role: 'aluno'
+        },
+        process.env.JWT_SECRET,
+        { expiresIn: '30d' }
+      );
+
       res.json({
         success: true,
         data: {
           token: token,
-          refreshToken: null,
+          refreshToken: refreshToken,
           user: {
             id: aluno.id,
             rm: aluno.rm,
@@ -123,25 +141,48 @@ export const authController = {
         });
       }
 
-      const { data: { session }, error } = await supabase.auth.refreshSession({
-        refresh_token: refresh_token
-      });
+      try {
+        const decoded = jwt.verify(refresh_token, process.env.JWT_SECRET);
 
-      if (error) {
+        const newToken = jwt.sign(
+          {
+            id: decoded.id,
+            role: decoded.role,
+            ...(decoded.email && { email: decoded.email }),
+            ...(decoded.rm && { rm: decoded.rm })
+          },
+          process.env.JWT_SECRET,
+          { expiresIn: '7d' }
+        );
+
+        const newRefreshToken = jwt.sign(
+          {
+            id: decoded.id,
+            role: decoded.role
+          },
+          process.env.JWT_SECRET,
+          { expiresIn: '30d' }
+        );
+
+        return res.json({
+          success: true,
+          data: {
+            token: newToken,
+            refreshToken: newRefreshToken
+          }
+        });
+      } catch (jwtError) {
+        if (jwtError.name === 'TokenExpiredError') {
+          return res.status(401).json({
+            success: false,
+            message: 'Refresh token expirado'
+          });
+        }
         return res.status(401).json({
           success: false,
-          message: 'Token inválido'
+          message: 'Refresh token inválido'
         });
       }
-
-      res.json({
-        success: true,
-        data: {
-          token: session.access_token,
-          refreshToken: session.refresh_token
-        }
-      });
-
     } catch (error) {
       console.error('Erro no refreshToken:', error);
       res.status(500).json({
@@ -169,6 +210,21 @@ export const authController = {
 
     } catch (error) {
       console.error('Erro no logout:', error);
+      res.status(500).json({
+        success: false,
+        message: 'Erro interno do servidor'
+      });
+    }
+  },
+
+  async logoutAluno(req, res) {
+    try {
+      res.json({
+        success: true,
+        message: 'Logout realizado com sucesso'
+      });
+    } catch (error) {
+      console.error('Erro no logoutAluno:', error);
       res.status(500).json({
         success: false,
         message: 'Erro interno do servidor'
