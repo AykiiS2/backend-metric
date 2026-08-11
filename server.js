@@ -1,10 +1,11 @@
 import express from 'express';
-import cors from 'cors';
-import helmet from 'helmet';
 import compression from 'compression';
 import { WebSocketServer } from 'ws';
 import http from 'http';
 
+import { securityHeaders, corsConfig } from './backend/src/middleware/security.js';
+import { generalLimiter } from './backend/src/middleware/rateLimiter.js';
+import { sanitizeRequestBody } from './backend/src/utils/sanitizer.js';
 import authRoutes from './backend/src/routes/authRoutes.js';
 import escolaRoutes from './backend/src/routes/escolaRoutes.js';
 import turmaRoutes from './backend/src/routes/turmaRoutes.js';
@@ -21,38 +22,14 @@ const wss = new WebSocketServer({ server });
 
 const PORT = process.env.PORT || 3000;
 
-const allowedOrigins = process.env.ALLOWED_ORIGINS 
-  ? process.env.ALLOWED_ORIGINS.split(',') 
-  : ['http://localhost:54878', 'http://localhost:60520', 'http://localhost:3000', 'https://backend-metric.onrender.com'];
-
-app.use(helmet({
-  crossOriginResourcePolicy: { policy: "cross-origin" }
-}));
-
-app.use(cors({
-  origin: function (origin, callback) {
-    if (!origin) {
-      return callback(null, true);
-    }
-    if (allowedOrigins.indexOf(origin) !== -1) {
-      callback(null, true);
-    } else {
-      console.log('CORS bloqueado para origem:', origin);
-      callback(null, true);
-    }
-  },
-  credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'Origin'],
-  exposedHeaders: ['Content-Range', 'X-Content-Range'],
-  maxAge: 600
-}));
-
-app.options('*', cors());
-
+app.use(securityHeaders);
+app.use(corsConfig);
+app.options('*', corsConfig);
 app.use(compression());
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+app.use(sanitizeRequestBody);
+app.use('/api', generalLimiter);
 
 app.use('/api/auth', authRoutes);
 app.use('/api/escolas', escolaRoutes);
