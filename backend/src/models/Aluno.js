@@ -241,84 +241,24 @@ export class Aluno extends BaseModel {
 
   async getRanking() {
     try {
-      const {
-        data: rankingData,
-        error: rankingError
-      } = await supabase
-        .from('ranking_alunos')
-        .select('*')
+      const { data, error } = await supabase
+        .from('alunos')
+        .select(
+          'id_aluno, rm, nome_aluno, id_escola, id_turma, pontuacao'
+        )
         .order('pontuacao', {
           ascending: false
+        })
+        .order('nome_aluno', {
+          ascending: true
         });
 
-      if (rankingError) {
-        throw rankingError;
+      if (error) {
+        throw error;
       }
 
-      if (
-        !rankingData ||
-        rankingData.length === 0
-      ) {
-        return [];
-      }
-
-      const alunoIds = [
-        ...new Set(
-          rankingData
-            .map((item) => item.id_aluno)
-            .filter(
-              (id) =>
-                id !== null &&
-                id !== undefined &&
-                id !== ''
-            )
-        )
-      ];
-
-      if (alunoIds.length === 0) {
-        return rankingData.map(
-          (item, index) => ({
-            ...item,
-            posicao:
-              item.posicao ?? index + 1,
-            rm: ''
-          })
-        );
-      }
-
-      const {
-        data: alunosData,
-        error: alunosError
-      } = await supabase
-        .from('alunos')
-        .select('id_aluno, rm')
-        .in('id_aluno', alunoIds);
-
-      if (alunosError) {
-        throw alunosError;
-      }
-
-      const rmPorAlunoId = new Map(
-        (alunosData || []).map(
-          (aluno) => [
-            String(aluno.id_aluno),
-            aluno.rm?.toString() ?? ''
-          ]
-        )
-      );
-
-      return rankingData.map(
-        (item, index) => ({
-          ...item,
-
-          posicao:
-            item.posicao ?? index + 1,
-
-          rm:
-            rmPorAlunoId.get(
-              String(item.id_aluno)
-            ) ?? ''
-        })
+      return await this._enrichRanking(
+        data || []
       );
     } catch (error) {
       throw new AppError(
@@ -330,32 +270,131 @@ export class Aluno extends BaseModel {
 
   async getRankingByTurma(turmaId) {
     try {
-
-      const rankingCompleto =
-        await this.getRanking();
-
-      const rankingDaTurma =
-        rankingCompleto.filter(
-          (item) =>
-            String(item.id_turma) ===
-            String(turmaId)
+      if (!turmaId) {
+        throw new AppError(
+          'Turma não informada',
+          400
         );
+      }
 
-      /*
-       * Recalcula a posição dentro da turma.
-       */
-      return rankingDaTurma.map(
-        (item, index) => ({
-          ...item,
-          posicao: index + 1
+      const { data, error } = await supabase
+        .from('alunos')
+        .select(
+          'id_aluno, rm, nome_aluno, id_escola, id_turma, pontuacao'
+        )
+        .eq('id_turma', turmaId)
+        .order('pontuacao', {
+          ascending: false
         })
+        .order('nome_aluno', {
+          ascending: true
+        });
+
+      if (error) {
+        throw error;
+      }
+
+      return await this._enrichRanking(
+        data || []
       );
     } catch (error) {
+      if (error instanceof AppError) {
+        throw error;
+      }
+
       throw new AppError(
         `Erro ao buscar ranking da turma: ${error.message}`,
         400
       );
     }
+  }
+
+  async _enrichRanking(rankingData) {
+    if (
+      !rankingData ||
+      rankingData.length === 0
+    ) {
+      return [];
+    }
+
+    const turmaIds = [
+      ...new Set(
+        rankingData
+          .map(
+            item => item.id_turma
+          )
+          .filter(
+            id =>
+              id !== null &&
+              id !== undefined &&
+              id !== ''
+          )
+      )
+    ];
+
+    let turmaPorId = new Map();
+
+    if (turmaIds.length > 0) {
+      const {
+        data: turmasData,
+        error: turmasError
+      } = await supabase
+        .from('turmas')
+        .select(
+          'id_turma, nome_turma'
+        )
+        .in(
+          'id_turma',
+          turmaIds
+        );
+
+      if (turmasError) {
+        throw turmasError;
+      }
+
+      turmaPorId = new Map(
+        (turmasData || []).map(
+          turma => [
+            String(turma.id_turma),
+            turma.nome_turma?.toString() ??
+              'Sem turma'
+          ]
+        )
+      );
+    }
+
+    return rankingData.map(
+      (item, index) => ({
+        id_aluno:
+          item.id_aluno,
+
+        rm:
+          item.rm?.toString() ?? '',
+
+        nome_aluno:
+          item.nome_aluno?.toString() ??
+          'Aluno',
+
+        id_escola:
+          item.id_escola,
+
+        id_turma:
+          item.id_turma,
+
+        nome_turma:
+          item.id_turma
+            ? turmaPorId.get(
+                String(item.id_turma)
+              ) ?? 'Sem turma'
+            : 'Sem turma',
+
+        pontuacao:
+          Number(item.pontuacao) || 0,
+
+        posicao:
+          index + 1
+      })
+    );
   }
 
   async updatePontuacao(id) {
@@ -381,7 +420,10 @@ export class Aluno extends BaseModel {
     }
   }
 
-  async verifyPassword(rm, password) {
+  async verifyPassword(
+    rm,
+    password
+  ) {
     try {
       const { data, error } = await supabase
         .from('alunos')
@@ -444,7 +486,10 @@ export class Aluno extends BaseModel {
     }
   }
 
-  async validateAluno(rm, senha) {
+  async validateAluno(
+    rm,
+    senha
+  ) {
     try {
       const {
         data,
@@ -475,9 +520,12 @@ export class Aluno extends BaseModel {
         id: data.id_aluno,
         rm: data.rm,
         nome: data.nome_aluno,
-        id_escola: data.id_escola,
-        id_turma: data.id_turma,
-        pontuacao: data.pontuacao
+        id_escola:
+          data.id_escola,
+        id_turma:
+          data.id_turma,
+        pontuacao:
+          data.pontuacao
       };
     } catch (error) {
       throw new AppError(
