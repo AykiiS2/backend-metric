@@ -5,7 +5,8 @@ import {
 } from '../controllers/rankingController.js';
 
 import {
-  authenticateToken
+  authenticateToken,
+  requireRole
 } from '../middleware/auth.js';
 
 const router = express.Router();
@@ -13,18 +14,42 @@ const router = express.Router();
 router.use(authenticateToken);
 
 router.get(
+  '/alunos/seguro',
+  requireRole(['aluno']),
+  rankingController.getSafeRankingAlunos
+);
+
+router.get(
+  '/alunos/seguro/turma/:turmaId',
+  requireRole(['aluno']),
+  rankingController.getSafeRankingAlunosByTurma
+);
+
+router.get(
   '/alunos',
+  requireRole(['professor']),
   rankingController.getRankingAlunos
 );
 
 router.get(
   '/alunos/turma/:turmaId',
+  requireRole(['professor']),
   rankingController.getRankingAlunosByTurma
+);
+
+router.get(
+  '/turmas/opcoes',
+  rankingController.getTurmaOptions
 );
 
 router.get(
   '/turmas',
   rankingController.getRankingTurmas
+);
+
+router.get(
+  '/escolas/classificacao',
+  rankingController.getSafeRankingEscolas
 );
 
 router.get(
