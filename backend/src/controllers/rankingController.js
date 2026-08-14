@@ -8,14 +8,9 @@ const turmaModel = new Turma();
 const escolaModel = new Escola();
 
 export const rankingController = {
-  async getRankingAlunos(
-    req,
-    res,
-    next
-  ) {
+  async getRankingAlunos(req, res, next) {
     try {
-      const ranking =
-        await alunoModel.getRanking();
+      const ranking = await alunoModel.getRanking();
 
       res.status(200).json({
         success: true,
@@ -26,20 +21,13 @@ export const rankingController = {
     }
   },
 
-  async getRankingAlunosByTurma(
-    req,
-    res,
-    next
-  ) {
+  async getRankingAlunosByTurma(req, res, next) {
     try {
-      const { turmaId } =
-        req.params;
+      const { turmaId } = req.params;
 
-      const ranking =
-        await alunoModel
-          .getRankingByTurma(
-            turmaId
-          );
+      const ranking = await alunoModel.getRankingByTurma(
+        turmaId
+      );
 
       res.status(200).json({
         success: true,
@@ -50,17 +38,13 @@ export const rankingController = {
     }
   },
 
-  async getSafeRankingAlunos(
-    req,
-    res,
-    next
-  ) {
+  async getRankingAlunosByEscola(req, res, next) {
     try {
-      const ranking =
-        await rankingService
-          .getSafeGeneralStudentRanking(
-            req.user.id
-          );
+      const { escolaId } = req.params;
+
+      const ranking = await alunoModel.getRankingByEscola(
+        escolaId
+      );
 
       res.status(200).json({
         success: true,
@@ -71,21 +55,12 @@ export const rankingController = {
     }
   },
 
-  async getSafeRankingAlunosByTurma(
-    req,
-    res,
-    next
-  ) {
+  async getSafeRankingAlunos(req, res, next) {
     try {
-      const { turmaId } =
-        req.params;
-
       const ranking =
-        await rankingService
-          .getSafeClassStudentRanking(
-            req.user.id,
-            turmaId
-          );
+        await rankingService.getSafeGeneralStudentRanking(
+          req.user.id
+        );
 
       res.status(200).json({
         success: true,
@@ -96,14 +71,15 @@ export const rankingController = {
     }
   },
 
-  async getRankingTurmas(
-    req,
-    res,
-    next
-  ) {
+  async getSafeRankingAlunosByTurma(req, res, next) {
     try {
+      const { turmaId } = req.params;
+
       const ranking =
-        await turmaModel.getRanking();
+        await rankingService.getSafeClassStudentRanking(
+          req.user.id,
+          turmaId
+        );
 
       res.status(200).json({
         success: true,
@@ -114,15 +90,60 @@ export const rankingController = {
     }
   },
 
-  async getTurmaOptions(
-    req,
-    res,
-    next
-  ) {
+  async getSafeRankingAlunosByEscola(req, res, next) {
     try {
-      const turmas =
-        await rankingService
-          .getTurmaOptions();
+      const { escolaId } = req.params;
+
+      const ranking =
+        await rankingService.getSafeSchoolStudentRanking(
+          req.user.id,
+          escolaId
+        );
+
+      res.status(200).json({
+        success: true,
+        data: ranking
+      });
+    } catch (error) {
+      next(error);
+    }
+  },
+
+  async getRankingTurmas(req, res, next) {
+    try {
+      const ranking = await turmaModel.getRanking();
+
+      res.status(200).json({
+        success: true,
+        data: ranking
+      });
+    } catch (error) {
+      next(error);
+    }
+  },
+
+  async getRankingTurmasByEscola(req, res, next) {
+    try {
+      const { escolaId } = req.params;
+
+      const ranking = await turmaModel.getRankingByEscola(
+        escolaId
+      );
+
+      res.status(200).json({
+        success: true,
+        data: ranking
+      });
+    } catch (error) {
+      next(error);
+    }
+  },
+
+  async getTurmaOptions(req, res, next) {
+    try {
+      const turmas = await rankingService.getTurmaOptions(
+        req.user.id
+      );
 
       res.status(200).json({
         success: true,
@@ -133,15 +154,29 @@ export const rankingController = {
     }
   },
 
-  async getRankingEscolas(
-    req,
-    res,
-    next
-  ) {
+  async getTurmaOptionsByEscola(req, res, next) {
+    try {
+      const { escolaId } = req.params;
+
+      const turmas =
+        await rankingService.getTurmaOptionsByEscola(
+          req.user.id,
+          escolaId
+        );
+
+      res.status(200).json({
+        success: true,
+        data: turmas
+      });
+    } catch (error) {
+      next(error);
+    }
+  },
+
+  async getRankingEscolas(req, res, next) {
     try {
       const ranking =
-        await escolaModel
-          .findAllWithStats();
+        await escolaModel.findAllWithStats();
 
       res.status(200).json({
         success: true,
@@ -152,15 +187,12 @@ export const rankingController = {
     }
   },
 
-  async getSafeRankingEscolas(
-    req,
-    res,
-    next
-  ) {
+  async getSafeRankingEscolas(req, res, next) {
     try {
       const ranking =
-        await rankingService
-          .getSchoolRanking();
+        await rankingService.getSchoolRanking(
+          req.user.id
+        );
 
       res.status(200).json({
         success: true,
