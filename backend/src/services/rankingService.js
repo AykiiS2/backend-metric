@@ -21,41 +21,6 @@ const toSafeStudentEntry = (
   };
 };
 
-const buildSafeStudentRanking = (
-  ranking,
-  studentId
-) => {
-  const top3 = ranking
-    .slice(0, 3)
-    .map(
-      entry =>
-        toSafeStudentEntry(
-          entry,
-          studentId
-        )
-    );
-
-  const currentStudent =
-    ranking.find(
-      entry =>
-        String(entry.id_aluno) ===
-        String(studentId)
-    );
-
-  return {
-    top3,
-    currentStudent:
-      currentStudent
-        ? toSafeStudentEntry(
-            currentStudent,
-            studentId
-          )
-        : null,
-    totalParticipants:
-      ranking.length
-  };
-};
-
 export const rankingService = {
   async getSafeGeneralStudentRanking(
     studentId
@@ -70,20 +35,40 @@ export const rankingService = {
     const ranking =
       await alunoModel.getRanking();
 
-    const result =
-      buildSafeStudentRanking(
-        ranking,
-        studentId
+    const top3 = ranking
+      .slice(0, 3)
+      .map(
+        entry =>
+          toSafeStudentEntry(
+            entry,
+            studentId
+          )
       );
 
-    if (!result.currentStudent) {
+    const currentStudent =
+      ranking.find(
+        entry =>
+          String(entry.id_aluno) ===
+          String(studentId)
+      );
+
+    if (!currentStudent) {
       throw new AppError(
         'Aluno autenticado não encontrado no ranking',
         404
       );
     }
 
-    return result;
+    return {
+      top3,
+      currentStudent:
+        toSafeStudentEntry(
+          currentStudent,
+          studentId
+        ),
+      totalParticipants:
+        ranking.length
+    };
   },
 
   async getSafeClassStudentRanking(
@@ -109,39 +94,35 @@ export const rankingService = {
         turmaId
       );
 
-    return buildSafeStudentRanking(
-      ranking,
-      studentId
-    );
-  },
-
-  async getSafeSchoolStudentRanking(
-    studentId,
-    escolaId
-  ) {
-    if (!studentId) {
-      throw new AppError(
-        'Aluno autenticado não identificado',
-        401
-      );
-    }
-
-    if (!escolaId) {
-      throw new AppError(
-        'Escola não informada',
-        400
-      );
-    }
-
-    const ranking =
-      await alunoModel.getRankingByEscola(
-        escolaId
+    const top3 = ranking
+      .slice(0, 3)
+      .map(
+        entry =>
+          toSafeStudentEntry(
+            entry,
+            studentId
+          )
       );
 
-    return buildSafeStudentRanking(
-      ranking,
-      studentId
-    );
+    const currentStudent =
+      ranking.find(
+        entry =>
+          String(entry.id_aluno) ===
+          String(studentId)
+      );
+
+    return {
+      top3,
+      currentStudent:
+        currentStudent
+          ? toSafeStudentEntry(
+              currentStudent,
+              studentId
+            )
+          : null,
+      totalParticipants:
+        ranking.length
+    };
   },
 
   async getTurmaOptions() {
@@ -149,7 +130,7 @@ export const rankingService = {
       await supabase
         .from('turmas')
         .select(
-          'id_turma, nome_turma, id_escola'
+          'id_turma, nome_turma'
         )
         .order(
           'nome_turma',
@@ -169,72 +150,10 @@ export const rankingService = {
       turma => ({
         id_turma:
           turma.id_turma,
-
         nome_turma:
           turma.nome_turma
             ?.toString() ??
-          'Turma',
-
-        id_escola:
-          turma.id_escola
-      })
-    );
-  },
-
-  async getTurmaOptionsByEscola(
-    studentId,
-    escolaId
-  ) {
-    if (!studentId) {
-      throw new AppError(
-        'Aluno autenticado não identificado',
-        401
-      );
-    }
-
-    if (!escolaId) {
-      throw new AppError(
-        'Escola não informada',
-        400
-      );
-    }
-
-    const { data, error } =
-      await supabase
-        .from('turmas')
-        .select(
-          'id_turma, nome_turma, id_escola'
-        )
-        .eq(
-          'id_escola',
-          escolaId
-        )
-        .order(
-          'nome_turma',
-          {
-            ascending: true
-          }
-        );
-
-    if (error) {
-      throw new AppError(
-        `Erro ao buscar turmas da escola: ${error.message}`,
-        400
-      );
-    }
-
-    return (data || []).map(
-      turma => ({
-        id_turma:
-          turma.id_turma,
-
-        nome_turma:
-          turma.nome_turma
-            ?.toString() ??
-          'Turma',
-
-        id_escola:
-          turma.id_escola
+          'Turma'
       })
     );
   },
@@ -264,25 +183,20 @@ export const rankingService = {
       (school, index) => ({
         posicao:
           index + 1,
-
         id_escola:
           school.id_escola,
-
         nome_escola:
           school.nome_escola
             ?.toString() ??
           'Escola',
-
         pontuacao:
           Number(
             school.pontuacao_escolas
           ) || 0,
-
         qtd_alunos:
           Number(
             school.qtd_alunos
           ) || 0,
-
         qtd_turmas:
           Number(
             school.qtd_turmas
