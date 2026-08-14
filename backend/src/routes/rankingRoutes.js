@@ -38,12 +38,6 @@ router.get(
 );
 
 router.get(
-  '/alunos/escola/:escolaId',
-  rankingController.getRankingAlunosByEscola
-);
-
-
-router.get(
   '/turmas/opcoes',
   rankingController.getTurmaOptions
 );
@@ -51,12 +45,6 @@ router.get(
 router.get(
   '/turmas',
   rankingController.getRankingTurmas
-);
-
-
-router.get(
-  '/turmas/escola/:escolaId',
-  rankingController.getRankingTurmasByEscola
 );
 
 router.get(
